@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #eef1f5;
+  color: #1f2733;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Modal slide-up animation, ported from the prototype. */
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.animate-sheet-up {
+  animation: sheet-up 0.2s ease;
+}

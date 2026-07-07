@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  admin
+  worker
+}
+
+enum UserStatus {
+  active
+  on_leave
+  terminated
+}
+
+enum AuditAction {
+  create
+  update
+  delete
+}
+
+model User {
+  id               String     @id @default(cuid())
+  name             String
+  email            String     @unique
+  passwordHash     String
+  role             Role       @default(worker)
+  photoUrl         String?
+  phone            String?
+  address          String?
+  birthDate        DateTime?
+  nationality      String?
+  startDate        DateTime?
+  emergencyContact String?
+  status           UserStatus @default(active)
+  position         String?
+  notes            String? // admin-only notes about the worker
+  hourlyRate       Decimal    @default(0) @db.Decimal(10, 2)
+  locale           String     @default("uk")
+  createdAt        DateTime   @default(now())
+
+  workEntries WorkEntry[]
+  payments    Payment[]
+  auditLogs   AuditLog[]  @relation("ActorAuditLogs")
+
+  @@map("users")
+}
+
+model WorkEntry {
+  id        String   @id @default(cuid())
+  userId    String
+  date      DateTime @db.Date
+  hours     Decimal  @db.Decimal(6, 2)
+  address   String?
+  photoUrl  String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+  @@map("work_entries")
+}
+
+model Payment {
+  id        String   @id @default(cuid())
+  userId    String
+  date      DateTime @db.Date
+  amount    Decimal  @db.Decimal(10, 2)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+  @@map("payments")
+}
+
+model AuditLog {
+  id          String      @id @default(cuid())
+  actorUserId String
+  tableName   String
+  recordId    String
+  action      AuditAction
+  oldValue    Json?
+  newValue    Json?
+  createdAt   DateTime    @default(now())
+
+  actor User @relation("ActorAuditLogs", fields: [actorUserId], references: [id], onDelete: Cascade)
+
+  @@index([tableName, recordId])
+  @@map("audit_log")
+}
+
+model NotificationLog {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  sentAt    DateTime @default(now())
+
+  @@map("notifications_log")
+}
