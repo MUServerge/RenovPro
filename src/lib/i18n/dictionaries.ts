@@ -87,6 +87,10 @@ export type Dict = {
   photoUrl: string;
   profileSaved: string;
   editProfile: string;
+  annualReport: string;
+  year: string;
+  print: string;
+  month: string;
 };
 
 const uk: Dict = {
@@ -162,6 +166,10 @@ const uk: Dict = {
   photoUrl: "Фото (URL)",
   profileSaved: "Профіль збережено",
   editProfile: "Редагувати профіль",
+  annualReport: "Річний звіт",
+  year: "Рік",
+  print: "Друк / PDF",
+  month: "Місяць",
 };
 
 const en: Dict = {
@@ -237,6 +245,10 @@ const en: Dict = {
   photoUrl: "Photo (URL)",
   profileSaved: "Profile saved",
   editProfile: "Edit profile",
+  annualReport: "Annual report",
+  year: "Year",
+  print: "Print / PDF",
+  month: "Month",
 };
 
 const fr: Dict = {
@@ -312,6 +324,10 @@ const fr: Dict = {
   photoUrl: "Photo (URL)",
   profileSaved: "Profil enregistré",
   editProfile: "Modifier le profil",
+  annualReport: "Rapport annuel",
+  year: "Année",
+  print: "Imprimer / PDF",
+  month: "Mois",
 };
 
 const ka: Dict = {
@@ -387,6 +403,10 @@ const ka: Dict = {
   photoUrl: "ფოტო (URL)",
   profileSaved: "პროფილი შენახულია",
   editProfile: "პროფილის რედაქტირება",
+  annualReport: "წლიური ანგარიში",
+  year: "წელი",
+  print: "ბეჭდვა / PDF",
+  month: "თვე",
 };
 
 export const dictionaries: Record<Locale, Dict> = { ka, en, uk, fr };

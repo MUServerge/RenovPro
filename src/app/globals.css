@@ -31,3 +31,12 @@ body {
 .animate-sheet-up {
   animation: sheet-up 0.2s ease;
 }
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+  }
+}

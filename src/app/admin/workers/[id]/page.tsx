@@ -37,12 +37,18 @@ export default async function WorkerDetailPage({
         >
           ← {t.back}
         </Link>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <h1 className="truncate text-lg font-bold">{user.name}</h1>
           <div className="truncate text-xs opacity-80">
             {user.position || t.worker}
           </div>
         </div>
+        <Link
+          href={`/report?u=${user.id}`}
+          className="whitespace-nowrap rounded-lg bg-white/15 px-3 py-1.5 text-xs font-semibold hover:bg-white/25"
+        >
+          📄 {t.annualReport}
+        </Link>
       </header>
 
       <Tracker

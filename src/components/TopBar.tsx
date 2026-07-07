@@ -24,6 +24,16 @@ export default function TopBar({
           <div className="mt-0.5 truncate text-xs opacity-80">{subtitle}</div>
         </div>
         <div className="flex items-center gap-2">
+          {session.role === "worker" && (
+            <Link
+              href="/report"
+              className="rounded-lg bg-white/15 px-2.5 py-1.5 text-sm hover:bg-white/25"
+              aria-label={t.annualReport}
+              title={t.annualReport}
+            >
+              📄
+            </Link>
+          )}
           <Link
             href="/dashboard/profile"
             className="rounded-lg bg-white/15 px-2.5 py-1.5 text-sm hover:bg-white/25"

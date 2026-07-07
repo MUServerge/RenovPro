@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
-const PROTECTED = ["/dashboard", "/admin"];
+const PROTECTED = ["/dashboard", "/admin", "/report"];
 
 async function isValid(token: string | undefined): Promise<boolean> {
   if (!token) return false;
@@ -32,5 +32,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/admin/:path*"],
+  matcher: ["/dashboard/:path*", "/admin/:path*", "/report"],
 };
