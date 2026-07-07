@@ -91,6 +91,7 @@ export type Dict = {
   year: string;
   print: string;
   month: string;
+  photo: string;
 };
 
 const uk: Dict = {
@@ -170,6 +171,7 @@ const uk: Dict = {
   year: "Рік",
   print: "Друк / PDF",
   month: "Місяць",
+  photo: "Фото",
 };
 
 const en: Dict = {
@@ -249,6 +251,7 @@ const en: Dict = {
   year: "Year",
   print: "Print / PDF",
   month: "Month",
+  photo: "Photo",
 };
 
 const fr: Dict = {
@@ -328,6 +331,7 @@ const fr: Dict = {
   year: "Année",
   print: "Imprimer / PDF",
   month: "Mois",
+  photo: "Photo",
 };
 
 const ka: Dict = {
@@ -407,6 +411,7 @@ const ka: Dict = {
   year: "წელი",
   print: "ბეჭდვა / PDF",
   month: "თვე",
+  photo: "ფოტო",
 };
 
 export const dictionaries: Record<Locale, Dict> = { ka, en, uk, fr };

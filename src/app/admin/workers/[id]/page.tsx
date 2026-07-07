@@ -60,6 +60,7 @@ export default async function WorkerDetailPage({
           date: e.date.toISOString().slice(0, 10),
           hours: toNum(e.hours),
           address: e.address ?? "",
+          photoUrl: e.photoUrl ?? undefined,
         }))}
         payments={payments.map((p) => ({
           id: p.id,

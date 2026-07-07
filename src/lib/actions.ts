@@ -93,15 +93,17 @@ export async function addWorkEntry(formData: FormData): Promise<void> {
   const date = String(formData.get("date") ?? "");
   const hours = parseNum(formData.get("hours"));
   const address = String(formData.get("address") ?? "").trim() || null;
+  const photoUrl = String(formData.get("photoUrl") ?? "").trim() || null;
   if (!date || isNaN(hours)) return;
 
   const entry = await prisma.workEntry.create({
-    data: { userId: targetId, date: new Date(date), hours, address },
+    data: { userId: targetId, date: new Date(date), hours, address, photoUrl },
   });
   await audit(session.id, "work_entries", entry.id, "create", null, {
     date,
     hours,
     address,
+    photoUrl,
   });
   revalidatePath(pathFor(targetId, session));
 }

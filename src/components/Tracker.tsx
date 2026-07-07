@@ -9,9 +9,16 @@ import {
   setHourlyRate,
 } from "@/lib/actions";
 import { eur, fmtDate } from "@/lib/money";
+import { photosEnabled, uploadPhoto } from "@/lib/photo-upload";
 import type { Dict } from "@/lib/i18n/dictionaries";
 
-export type Entry = { id: string; date: string; hours: number; address: string };
+export type Entry = {
+  id: string;
+  date: string;
+  hours: number;
+  address: string;
+  photoUrl?: string;
+};
 export type Pay = { id: string; date: string; amount: number };
 
 function hoursLabel(n: number): string {
@@ -33,6 +40,26 @@ export default function Tracker({
 }) {
   const [tab, setTab] = useState<"work" | "pay">("work");
   const [modal, setModal] = useState<null | "work" | "pay">(null);
+  const [photo, setPhoto] = useState<string>("");
+  const [uploading, setUploading] = useState(false);
+
+  function openModal(kind: "work" | "pay") {
+    setPhoto("");
+    setModal(kind);
+  }
+
+  async function onPickPhoto(file: File | undefined) {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const url = await uploadPhoto(file);
+      setPhoto(url);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  }
 
   const totals = useMemo(() => {
     const hours = entries.reduce((s, e) => s + (e.hours || 0), 0);
@@ -150,6 +177,16 @@ export default function Tracker({
               .sort((a, b) => (a.date < b.date ? -1 : 1))
               .map((e) => (
                 <div key={e.id} className="flex items-center gap-2.5 rounded-xl border border-brand-line bg-white px-3 py-2.5">
+                  {e.photoUrl && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <a href={e.photoUrl} target="_blank" rel="noreferrer" className="shrink-0">
+                      <img
+                        src={e.photoUrl}
+                        alt=""
+                        className="h-10 w-10 rounded-lg border border-brand-line object-cover"
+                      />
+                    </a>
+                  )}
                   <div className="min-w-0 flex-1">
                     <div className="text-xs text-brand-muted">
                       {fmtDate(e.date)}
@@ -189,7 +226,7 @@ export default function Tracker({
 
       {/* FAB */}
       <button
-        onClick={() => setModal(tab)}
+        onClick={() => openModal(tab)}
         className="fixed bottom-20 right-4 z-30 h-14 w-14 rounded-full bg-brand-med text-3xl text-white shadow-[0_4px_14px_rgba(46,117,182,.5)]"
         aria-label={t.addEntry}
       >
@@ -205,7 +242,7 @@ export default function Tracker({
           ⬇ {t.exportCsv}
         </button>
         <button
-          onClick={() => setModal(tab)}
+          onClick={() => openModal(tab)}
           className="flex-1 rounded-xl bg-brand-dark py-3 text-sm font-bold text-white"
         >
           + {t.addEntry}
@@ -245,6 +282,36 @@ export default function Tracker({
                     ))}
                   </datalist>
                 </Field>
+                {photosEnabled() && (
+                  <Field label={t.photo}>
+                    <input type="hidden" name="photoUrl" value={photo} />
+                    {photo ? (
+                      <div className="flex items-center gap-3">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={photo} alt="" className="h-16 w-16 rounded-lg border border-brand-line object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => setPhoto("")}
+                          className="rounded-lg bg-[#fbe9e9] px-3 py-1.5 text-sm font-semibold text-brand-danger"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ) : (
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        disabled={uploading}
+                        onChange={(e) => onPickPhoto(e.target.files?.[0])}
+                        className={inputCls}
+                      />
+                    )}
+                    {uploading && (
+                      <div className="mt-1 text-xs text-brand-muted">…</div>
+                    )}
+                  </Field>
+                )}
               </>
             ) : (
               <>
