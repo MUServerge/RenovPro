@@ -78,6 +78,15 @@ export type Dict = {
   hoursBySite: string;
   hoursByWorker: string;
   exportAll: string;
+  profile: string;
+  phone: string;
+  birthDate: string;
+  nationality: string;
+  emergencyContact: string;
+  notes: string;
+  photoUrl: string;
+  profileSaved: string;
+  editProfile: string;
 };
 
 const uk: Dict = {
@@ -144,6 +153,15 @@ const uk: Dict = {
   hoursBySite: "Години за об'єктами",
   hoursByWorker: "Години за працівниками",
   exportAll: "Експорт усіх (CSV)",
+  profile: "Профіль",
+  phone: "Телефон",
+  birthDate: "Дата народження",
+  nationality: "Громадянство",
+  emergencyContact: "Екстрений контакт",
+  notes: "Нотатки (адмін)",
+  photoUrl: "Фото (URL)",
+  profileSaved: "Профіль збережено",
+  editProfile: "Редагувати профіль",
 };
 
 const en: Dict = {
@@ -210,6 +228,15 @@ const en: Dict = {
   hoursBySite: "Hours by site",
   hoursByWorker: "Hours by worker",
   exportAll: "Export all (CSV)",
+  profile: "Profile",
+  phone: "Phone",
+  birthDate: "Birth date",
+  nationality: "Nationality",
+  emergencyContact: "Emergency contact",
+  notes: "Notes (admin)",
+  photoUrl: "Photo (URL)",
+  profileSaved: "Profile saved",
+  editProfile: "Edit profile",
 };
 
 const fr: Dict = {
@@ -276,6 +303,15 @@ const fr: Dict = {
   hoursBySite: "Heures par chantier",
   hoursByWorker: "Heures par ouvrier",
   exportAll: "Exporter tout (CSV)",
+  profile: "Profil",
+  phone: "Téléphone",
+  birthDate: "Date de naissance",
+  nationality: "Nationalité",
+  emergencyContact: "Contact d'urgence",
+  notes: "Notes (admin)",
+  photoUrl: "Photo (URL)",
+  profileSaved: "Profil enregistré",
+  editProfile: "Modifier le profil",
 };
 
 const ka: Dict = {
@@ -342,6 +378,15 @@ const ka: Dict = {
   hoursBySite: "საათები ობიექტების მიხედვით",
   hoursByWorker: "საათები თანამშრომლების მიხედვით",
   exportAll: "ყველას ექსპორტი (CSV)",
+  profile: "პროფილი",
+  phone: "ტელეფონი",
+  birthDate: "დაბადების თარიღი",
+  nationality: "მოქალაქეობა",
+  emergencyContact: "საგანგებო კონტაქტი",
+  notes: "შენიშვნები (ადმინი)",
+  photoUrl: "ფოტო (URL)",
+  profileSaved: "პროფილი შენახულია",
+  editProfile: "პროფილის რედაქტირება",
 };
 
 export const dictionaries: Record<Locale, Dict> = { ka, en, uk, fr };

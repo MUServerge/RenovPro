@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { logoutAction, setLocale } from "@/lib/actions";
 import { LOCALES, LOCALE_LABELS, type Dict } from "@/lib/i18n/dictionaries";
 import type { SessionUser } from "@/lib/auth";
@@ -23,6 +24,14 @@ export default function TopBar({
           <div className="mt-0.5 truncate text-xs opacity-80">{subtitle}</div>
         </div>
         <div className="flex items-center gap-2">
+          <Link
+            href="/dashboard/profile"
+            className="rounded-lg bg-white/15 px-2.5 py-1.5 text-sm hover:bg-white/25"
+            aria-label={t.profile}
+            title={t.profile}
+          >
+            👤
+          </Link>
           <form action={setLocale}>
             <select
               name="locale"

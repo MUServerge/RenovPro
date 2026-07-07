@@ -190,6 +190,51 @@ export async function setLocale(formData: FormData): Promise<void> {
   revalidatePath("/", "layout");
 }
 
+export async function updateProfile(
+  _prev: unknown,
+  formData: FormData,
+): Promise<{ ok?: boolean }> {
+  const session = await getSession();
+  if (!session) redirect("/login");
+  const requested = String(formData.get("targetUserId") ?? "");
+  const isAdmin = session.role === "admin";
+  const targetId = isAdmin && requested ? requested : session.id;
+
+  const str = (k: string) => {
+    const v = String(formData.get(k) ?? "").trim();
+    return v === "" ? null : v;
+  };
+  const birthRaw = str("birthDate");
+
+  // Fields any user may edit on their own record.
+  const data: Record<string, unknown> = {
+    phone: str("phone"),
+    address: str("address"),
+    nationality: str("nationality"),
+    emergencyContact: str("emergencyContact"),
+    photoUrl: str("photoUrl"),
+    birthDate: birthRaw ? new Date(birthRaw) : null,
+  };
+
+  // Admin-only fields.
+  if (isAdmin) {
+    data.position = str("position");
+    data.notes = str("notes");
+    const status = String(formData.get("status") ?? "");
+    if (["active", "on_leave", "terminated"].includes(status)) {
+      data.status = status;
+    }
+  }
+
+  await prisma.user.update({ where: { id: targetId }, data });
+  revalidatePath(
+    isAdmin && targetId !== session.id
+      ? `/admin/workers/${targetId}`
+      : "/dashboard/profile",
+  );
+  return { ok: true };
+}
+
 export async function createWorker(formData: FormData): Promise<void> {
   const session = await getSession();
   if (!session || session.role !== "admin") redirect("/login");
