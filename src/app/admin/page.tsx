@@ -6,6 +6,7 @@ import { getDict } from "@/lib/i18n/dictionaries";
 import { eur, toNum } from "@/lib/money";
 import TopBar from "@/components/TopBar";
 import AddWorkerForm from "@/components/AddWorkerForm";
+import BarChart, { type Bar } from "@/components/BarChart";
 
 export const dynamic = "force-dynamic";
 
@@ -40,6 +41,38 @@ export default async function AdminPage() {
   const topHours = [...rows].sort((a, b) => b.hours - a.hours)[0];
   const topBalance = [...rows].sort((a, b) => b.balance - a.balance)[0];
 
+  // ── Analytics aggregates (across all workers) ──
+  const rateOf = new Map(workers.map((w) => [w.id, toNum(w.hourlyRate)]));
+
+  const monthMap = new Map<string, number>();
+  const siteMap = new Map<string, number>();
+  for (const w of workers) {
+    const rate = rateOf.get(w.id) ?? 0;
+    for (const e of w.workEntries) {
+      const month = e.date.toISOString().slice(0, 7); // YYYY-MM
+      const hours = toNum(e.hours);
+      monthMap.set(month, (monthMap.get(month) ?? 0) + hours * rate);
+      const site = e.address?.trim() || "—";
+      siteMap.set(site, (siteMap.get(site) ?? 0) + hours);
+    }
+  }
+
+  const costByMonth: Bar[] = [...monthMap.entries()]
+    .sort((a, b) => (a[0] < b[0] ? -1 : 1))
+    .slice(-6)
+    .map(([m, v]) => ({ label: m, value: Math.round(v) }));
+
+  const hoursBySite: Bar[] = [...siteMap.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6)
+    .map(([s, v]) => ({ label: s, value: Math.round(v * 10) / 10 }));
+
+  const hoursByWorker: Bar[] = [...rows]
+    .filter((r) => r.hours > 0)
+    .sort((a, b) => b.hours - a.hours)
+    .slice(0, 8)
+    .map((r) => ({ label: r.name, value: Math.round(r.hours * 10) / 10 }));
+
   const statusLabel = (s: string) =>
     s === "active"
       ? t.statusActive
@@ -68,6 +101,30 @@ export default async function AdminPage() {
             value={topBalance ? `${topBalance.name} · ${eur(topBalance.balance)}` : "—"}
             tone="orange"
           />
+        </div>
+
+        {/* Analytics */}
+        <div className="mb-2 mt-6 flex items-center justify-between">
+          <h2 className="text-sm font-bold uppercase tracking-wide text-brand-muted">
+            {t.analytics}
+          </h2>
+          <a
+            href="/api/admin/export-all"
+            className="rounded-lg border border-brand-dark bg-white px-3 py-1.5 text-xs font-bold text-brand-dark"
+          >
+            ⬇ {t.exportAll}
+          </a>
+        </div>
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+          <ChartCard title={t.costByMonth}>
+            <BarChart data={costByMonth} unit=" €" color="#2E75B6" />
+          </ChartCard>
+          <ChartCard title={t.hoursBySite}>
+            <BarChart data={hoursBySite} unit=" h" color="#5a9e5f" />
+          </ChartCard>
+          <ChartCard title={t.hoursByWorker}>
+            <BarChart data={hoursByWorker} unit=" h" color="#e08a4b" />
+          </ChartCard>
         </div>
 
         {/* Workers table */}
@@ -209,6 +266,23 @@ function StatCard({
         {label}
       </div>
       <div className="mt-1 text-lg font-extrabold text-brand-txt">{value}</div>
+    </div>
+  );
+}
+
+function ChartCard({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-2xl border border-brand-line bg-white p-4 shadow-card">
+      <div className="mb-3 text-xs font-bold uppercase tracking-wide text-brand-muted">
+        {title}
+      </div>
+      {children}
     </div>
   );
 }

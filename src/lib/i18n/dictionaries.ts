@@ -73,6 +73,11 @@ export type Dict = {
   topHours: string;
   topBalance: string;
   savedAndSynced: string;
+  analytics: string;
+  costByMonth: string;
+  hoursBySite: string;
+  hoursByWorker: string;
+  exportAll: string;
 };
 
 const uk: Dict = {
@@ -134,6 +139,11 @@ const uk: Dict = {
   topHours: "Найбільше годин",
   topBalance: "Найбільший борг",
   savedAndSynced: "Збережено",
+  analytics: "Аналітика",
+  costByMonth: "Витрати за місяцями",
+  hoursBySite: "Години за об'єктами",
+  hoursByWorker: "Години за працівниками",
+  exportAll: "Експорт усіх (CSV)",
 };
 
 const en: Dict = {
@@ -195,6 +205,11 @@ const en: Dict = {
   topHours: "Most hours",
   topBalance: "Highest balance",
   savedAndSynced: "Saved",
+  analytics: "Analytics",
+  costByMonth: "Cost by month",
+  hoursBySite: "Hours by site",
+  hoursByWorker: "Hours by worker",
+  exportAll: "Export all (CSV)",
 };
 
 const fr: Dict = {
@@ -256,6 +271,11 @@ const fr: Dict = {
   topHours: "Plus d'heures",
   topBalance: "Solde le plus élevé",
   savedAndSynced: "Enregistré",
+  analytics: "Analytique",
+  costByMonth: "Coût par mois",
+  hoursBySite: "Heures par chantier",
+  hoursByWorker: "Heures par ouvrier",
+  exportAll: "Exporter tout (CSV)",
 };
 
 const ka: Dict = {
@@ -317,6 +337,11 @@ const ka: Dict = {
   topHours: "ყველაზე მეტი საათი",
   topBalance: "ყველაზე დიდი ბალანსი",
   savedAndSynced: "შენახულია",
+  analytics: "ანალიტიკა",
+  costByMonth: "ხარჯი თვეების მიხედვით",
+  hoursBySite: "საათები ობიექტების მიხედვით",
+  hoursByWorker: "საათები თანამშრომლების მიხედვით",
+  exportAll: "ყველას ექსპორტი (CSV)",
 };
 
 export const dictionaries: Record<Locale, Dict> = { ka, en, uk, fr };
