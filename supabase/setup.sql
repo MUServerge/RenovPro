@@ -106,12 +106,12 @@ ALTER TABLE "audit_log" ADD CONSTRAINT "audit_log_actorUserId_fkey" FOREIGN KEY 
 
 -- ─────────────────────────────────────────────
 -- Seed accounts (passwords: admin1234 / worker1234)
--- locale 'ka' => Georgian UI by default
+-- locale 'en' => English UI by default
 -- ─────────────────────────────────────────────
 INSERT INTO "users" ("id","name","email","passwordHash","role","hourlyRate","position","locale")
 VALUES
-  ('seed_admin_0001','Admin','admin@maysterpro.app','$2a$10$KppYKp0oXuw9R4F1mXjT0Oeu2QNHwb.UVvZs1V6Iv8mgXVVSq5e7m','admin',0,NULL,'ka'),
-  ('seed_worker_001','Ivan','worker@maysterpro.app','$2a$10$wNAm.8vDcS.YIAnO3oL7pOA66B0SiZhuL2bRlWgifM0cf8pHeQ1TS','worker',12.5,'Builder','ka')
+  ('seed_admin_0001','Admin','admin@maysterpro.app','$2a$10$KppYKp0oXuw9R4F1mXjT0Oeu2QNHwb.UVvZs1V6Iv8mgXVVSq5e7m','admin',0,NULL,'en'),
+  ('seed_worker_001','Ivan','worker@maysterpro.app','$2a$10$wNAm.8vDcS.YIAnO3oL7pOA66B0SiZhuL2bRlWgifM0cf8pHeQ1TS','worker',12.5,'Builder','en')
 ON CONFLICT ("email") DO NOTHING;
 
 INSERT INTO "work_entries" ("id","userId","date","hours","address")

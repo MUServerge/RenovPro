@@ -42,7 +42,7 @@ model User {
   position         String?
   notes            String? // admin-only notes about the worker
   hourlyRate       Decimal    @default(0) @db.Decimal(10, 2)
-  locale           String     @default("uk")
+  locale           String     @default("en")
   createdAt        DateTime   @default(now())
 
   workEntries WorkEntry[]

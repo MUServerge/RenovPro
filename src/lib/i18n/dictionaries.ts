@@ -3,7 +3,7 @@
 
 export const LOCALES = ["ka", "en", "uk", "fr"] as const;
 export type Locale = (typeof LOCALES)[number];
-export const DEFAULT_LOCALE: Locale = "uk";
+export const DEFAULT_LOCALE: Locale = "en";
 
 export const LOCALE_LABELS: Record<Locale, string> = {
   ka: "ქართული",

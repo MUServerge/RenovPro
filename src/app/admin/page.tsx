@@ -74,7 +74,65 @@ export default async function AdminPage() {
         <h2 className="mb-2 mt-6 text-sm font-bold uppercase tracking-wide text-brand-muted">
           {t.workers}
         </h2>
-        <div className="overflow-x-auto rounded-2xl border border-brand-line bg-white shadow-card">
+        {/* Mobile: stacked cards (no horizontal scroll) */}
+        <div className="space-y-2 sm:hidden">
+          {rows.length === 0 ? (
+            <p className="rounded-2xl border border-brand-line bg-white p-4 text-center text-brand-muted shadow-card">
+              —
+            </p>
+          ) : (
+            rows.map((r) => (
+              <div
+                key={r.id}
+                className="rounded-2xl border border-brand-line bg-white p-3 shadow-card"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <div className="font-bold text-brand-txt">{r.name}</div>
+                    <div className="text-xs text-brand-muted">
+                      {(r.position || "—") + " · " + statusLabel(r.status)}
+                    </div>
+                  </div>
+                  <Link
+                    href={`/admin/workers/${r.id}`}
+                    className="whitespace-nowrap rounded-lg bg-brand-dark px-3 py-1.5 text-xs font-bold text-white"
+                  >
+                    {t.viewDetails}
+                  </Link>
+                </div>
+                <div className="mt-2.5 grid grid-cols-3 gap-2 text-center">
+                  <div className="rounded-lg bg-brand-light py-1.5">
+                    <div className="text-[9px] font-bold uppercase tracking-wide text-brand-dark">
+                      {t.rate}
+                    </div>
+                    <div className="text-sm font-extrabold text-brand-dark">
+                      {r.rate.toFixed(2)} €
+                    </div>
+                  </div>
+                  <div className="rounded-lg bg-brand-green py-1.5">
+                    <div className="text-[9px] font-bold uppercase tracking-wide text-brand-dark">
+                      {t.totalHours}
+                    </div>
+                    <div className="text-sm font-extrabold text-brand-dark">
+                      {r.hours.toFixed(1)} h
+                    </div>
+                  </div>
+                  <div className="rounded-lg bg-brand-yellow py-1.5">
+                    <div className="text-[9px] font-bold uppercase tracking-wide text-brand-dark">
+                      {t.outstanding}
+                    </div>
+                    <div className="text-sm font-extrabold text-brand-dark">
+                      {eur(r.balance)}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Desktop: table */}
+        <div className="hidden overflow-x-auto rounded-2xl border border-brand-line bg-white shadow-card sm:block">
           <table className="w-full min-w-[560px] text-left text-sm">
             <thead className="bg-brand-light text-xs uppercase text-brand-dark">
               <tr>
