@@ -3,8 +3,10 @@
 import { useMemo, useState } from "react";
 import {
   addWorkEntry,
+  updateWorkEntry,
   deleteWorkEntry,
   addPayment,
+  updatePayment,
   deletePayment,
   setHourlyRate,
 } from "@/lib/actions";
@@ -42,13 +44,29 @@ export default function Tracker({
 }) {
   const [tab, setTab] = useState<"work" | "pay">("work");
   const [modal, setModal] = useState<null | "work" | "pay">(null);
+  const [editItem, setEditItem] = useState<Entry | Pay | null>(null);
   const [photo, setPhoto] = useState<string>("");
   const [uploading, setUploading] = useState(false);
 
   function openModal(kind: "work" | "pay") {
+    setEditItem(null);
     setPhoto("");
     setModal(kind);
   }
+
+  function openEditWork(e: Entry) {
+    setEditItem(e);
+    setPhoto(e.photoUrl ?? "");
+    setModal("work");
+  }
+
+  function openEditPay(p: Pay) {
+    setEditItem(p);
+    setModal("pay");
+  }
+
+  const editWork = modal === "work" ? (editItem as Entry | null) : null;
+  const editPay = modal === "pay" ? (editItem as Pay | null) : null;
 
   async function onPickPhoto(file: File | undefined) {
     if (!file) return;
@@ -187,7 +205,7 @@ export default function Tracker({
             <Empty>{t.noWork}</Empty>
           ) : (
             [...entries]
-              .sort((a, b) => (a.date < b.date ? -1 : 1))
+              .sort((a, b) => (a.date > b.date ? -1 : 1))
               .map((e) => (
                 <div key={e.id} className="flex items-center gap-2.5 rounded-xl border border-brand-line bg-white px-3 py-2.5">
                   {e.photoUrl && (
@@ -211,6 +229,7 @@ export default function Tracker({
                   <div className="whitespace-nowrap text-[15px] font-extrabold text-brand-dark">
                     {eur(e.hours * rate)}
                   </div>
+                  <EditBtn onClick={() => openEditWork(e)} label={t.edit} />
                   <DeleteBtn action={deleteWorkEntry} id={e.id} hidden={hidden} confirm={t.deleteConfirm} />
                 </div>
               ))
@@ -219,7 +238,7 @@ export default function Tracker({
           <Empty>{t.noPay}</Empty>
         ) : (
           [...payments]
-            .sort((a, b) => (a.date < b.date ? -1 : 1))
+            .sort((a, b) => (a.date > b.date ? -1 : 1))
             .map((p) => (
               <div key={p.id} className="flex items-center gap-2.5 rounded-xl border border-brand-line bg-white px-3 py-2.5">
                 <div className="min-w-0 flex-1">
@@ -231,6 +250,7 @@ export default function Tracker({
                 <div className="whitespace-nowrap text-[15px] font-extrabold text-[#2e8b57]">
                   + {eur(p.amount)}
                 </div>
+                <EditBtn onClick={() => openEditPay(p)} label={t.edit} />
                 <DeleteBtn action={deletePayment} id={p.id} hidden={hidden} confirm={t.deleteConfirm} />
               </div>
             ))
@@ -271,24 +291,39 @@ export default function Tracker({
           }}
         >
           <form
-            action={modal === "work" ? addWorkEntry : addPayment}
+            action={
+              modal === "work"
+                ? editWork
+                  ? updateWorkEntry
+                  : addWorkEntry
+                : editPay
+                  ? updatePayment
+                  : addPayment
+            }
             onSubmit={() => setModal(null)}
             className="w-full animate-sheet-up rounded-t-[20px] bg-white px-4 pb-6 pt-4"
           >
             {hidden}
+            {editItem && (
+              <input type="hidden" name="id" value={(editItem as { id: string }).id} />
+            )}
             <h3 className="mb-3.5 text-[17px] font-bold">
-              {modal === "work" ? t.addWorkDay : t.addPayment}
+              {editItem
+                ? t.edit
+                : modal === "work"
+                  ? t.addWorkDay
+                  : t.addPayment}
             </h3>
             {modal === "work" ? (
               <>
                 <Field label={t.date}>
-                  <input name="date" type="date" defaultValue={today} className={inputCls} />
+                  <input name="date" type="date" defaultValue={editWork?.date ?? today} className={inputCls} />
                 </Field>
                 <Field label={t.hoursLabel}>
-                  <input name="hours" type="text" inputMode="decimal" defaultValue="8" placeholder={t.hoursPlaceholder} className={inputCls} />
+                  <input name="hours" type="text" inputMode="decimal" defaultValue={editWork ? String(editWork.hours) : "8"} placeholder={t.hoursPlaceholder} className={inputCls} />
                 </Field>
                 <Field label={t.address}>
-                  <input name="address" list="addr-list" defaultValue={lastAddr} placeholder={t.addressPlaceholder} className={inputCls} />
+                  <input name="address" list="addr-list" defaultValue={editWork ? editWork.address : lastAddr} placeholder={t.addressPlaceholder} className={inputCls} />
                   <datalist id="addr-list">
                     {addresses.map((a) => (
                       <option key={a} value={a} />
@@ -329,10 +364,10 @@ export default function Tracker({
             ) : (
               <>
                 <Field label={t.paymentDate}>
-                  <input name="date" type="date" defaultValue={today} className={inputCls} />
+                  <input name="date" type="date" defaultValue={editPay?.date ?? today} className={inputCls} />
                 </Field>
                 <Field label={t.paymentAmount}>
-                  <input name="amount" type="text" inputMode="decimal" placeholder="500" className={inputCls} />
+                  <input name="amount" type="text" inputMode="decimal" defaultValue={editPay ? String(editPay.amount) : ""} placeholder="500" className={inputCls} />
                 </Field>
               </>
             )}
@@ -414,6 +449,20 @@ function Field({
       </label>
       {children}
     </div>
+  );
+}
+
+function EditBtn({ onClick, label }: { onClick: () => void; label: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="h-8 w-8 flex-none rounded-lg bg-brand-light text-sm font-bold text-brand-dark"
+      aria-label={label}
+      title={label}
+    >
+      ✎
+    </button>
   );
 }
 

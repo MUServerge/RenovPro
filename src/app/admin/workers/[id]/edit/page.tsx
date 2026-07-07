@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getDict } from "@/lib/i18n/dictionaries";
 import ProfileForm from "@/components/ProfileForm";
+import DeleteWorkerButton from "@/components/DeleteWorkerButton";
 
 export const dynamic = "force-dynamic";
 
@@ -54,6 +55,14 @@ export default async function EditWorkerPage({
             notes: user.notes ?? "",
           }}
         />
+
+        <div className="mt-6 border-t border-brand-line pt-4">
+          <DeleteWorkerButton
+            id={user.id}
+            label={t.deleteWorker}
+            confirmText={t.deleteWorkerConfirm}
+          />
+        </div>
       </div>
     </div>
   );

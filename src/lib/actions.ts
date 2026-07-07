@@ -125,6 +125,39 @@ export async function deleteWorkEntry(formData: FormData): Promise<void> {
   revalidatePath(pathFor(entry.userId, session));
 }
 
+export async function updateWorkEntry(formData: FormData): Promise<void> {
+  const session = await getSession();
+  if (!session) redirect("/login");
+  const id = String(formData.get("id") ?? "");
+  const entry = await prisma.workEntry.findUnique({ where: { id } });
+  if (!entry) return;
+  if (session.role !== "admin" && entry.userId !== session.id) return;
+
+  const date = String(formData.get("date") ?? "");
+  const hours = parseNum(formData.get("hours"));
+  const address = String(formData.get("address") ?? "").trim() || null;
+  const photoUrl = String(formData.get("photoUrl") ?? "").trim() || null;
+  if (!date || isNaN(hours)) return;
+
+  await prisma.workEntry.update({
+    where: { id },
+    data: { date: new Date(date), hours, address, photoUrl },
+  });
+  await audit(
+    session.id,
+    "work_entries",
+    id,
+    "update",
+    {
+      date: entry.date.toISOString().slice(0, 10),
+      hours: entry.hours.toString(),
+      address: entry.address,
+    },
+    { date, hours, address, photoUrl },
+  );
+  revalidatePath(pathFor(entry.userId, session));
+}
+
 // ---- Payments ----
 
 export async function addPayment(formData: FormData): Promise<void> {
@@ -153,6 +186,36 @@ export async function deletePayment(formData: FormData): Promise<void> {
     date: pay.date.toISOString().slice(0, 10),
     amount: pay.amount.toString(),
   }, null);
+  revalidatePath(pathFor(pay.userId, session));
+}
+
+export async function updatePayment(formData: FormData): Promise<void> {
+  const session = await getSession();
+  if (!session) redirect("/login");
+  const id = String(formData.get("id") ?? "");
+  const pay = await prisma.payment.findUnique({ where: { id } });
+  if (!pay) return;
+  if (session.role !== "admin" && pay.userId !== session.id) return;
+
+  const date = String(formData.get("date") ?? "");
+  const amount = parseNum(formData.get("amount"));
+  if (!date || isNaN(amount)) return;
+
+  await prisma.payment.update({
+    where: { id },
+    data: { date: new Date(date), amount },
+  });
+  await audit(
+    session.id,
+    "payments",
+    id,
+    "update",
+    {
+      date: pay.date.toISOString().slice(0, 10),
+      amount: pay.amount.toString(),
+    },
+    { date, amount },
+  );
   revalidatePath(pathFor(pay.userId, session));
 }
 
@@ -270,4 +333,18 @@ export async function createWorker(formData: FormData): Promise<void> {
     },
   });
   revalidatePath("/admin");
+}
+
+export async function deleteWorker(formData: FormData): Promise<void> {
+  const session = await getSession();
+  if (!session || session.role !== "admin") redirect("/login");
+  const id = String(formData.get("id") ?? "");
+  if (id === session.id) return; // never delete yourself
+  const target = await prisma.user.findUnique({ where: { id } });
+  if (!target || target.role === "admin") return; // only workers
+
+  // Related work entries, payments and audit logs cascade via FK.
+  await prisma.user.delete({ where: { id } });
+  revalidatePath("/admin");
+  redirect("/admin");
 }

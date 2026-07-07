@@ -105,6 +105,9 @@ export type Dict = {
   install: string;
   installLater: string;
   installIosHint: string;
+  edit: string;
+  deleteWorker: string;
+  deleteWorkerConfirm: string;
 };
 
 const uk: Dict = {
@@ -191,6 +194,9 @@ const uk: Dict = {
   install: "Встановити",
   installLater: "Пізніше",
   installIosHint: "Натисніть Поділитися, потім На екран Домівки",
+  edit: "Редагувати",
+  deleteWorker: "Видалити працівника",
+  deleteWorkerConfirm: "Видалити цього працівника та всі його дані?",
 };
 
 const en: Dict = {
@@ -277,6 +283,9 @@ const en: Dict = {
   install: "Install",
   installLater: "Later",
   installIosHint: "Tap Share, then Add to Home Screen",
+  edit: "Edit",
+  deleteWorker: "Delete worker",
+  deleteWorkerConfirm: "Delete this worker and all their data?",
 };
 
 const fr: Dict = {
@@ -363,6 +372,9 @@ const fr: Dict = {
   install: "Installer",
   installLater: "Plus tard",
   installIosHint: "Appuyez sur Partager, puis Sur l'écran d'accueil",
+  edit: "Modifier",
+  deleteWorker: "Supprimer l'ouvrier",
+  deleteWorkerConfirm: "Supprimer cet ouvrier et toutes ses données ?",
 };
 
 const ka: Dict = {
@@ -449,6 +461,9 @@ const ka: Dict = {
   install: "დაყენება",
   installLater: "მოგვიანებით",
   installIosHint: "დააჭირე Share-ს, მერე Add to Home Screen",
+  edit: "რედაქტირება",
+  deleteWorker: "თანამშრომლის წაშლა",
+  deleteWorkerConfirm: "წავშალო ეს თანამშრომელი და მისი ყველა მონაცემი?",
 };
 
 export const dictionaries: Record<Locale, Dict> = { ka, en, uk, fr };
