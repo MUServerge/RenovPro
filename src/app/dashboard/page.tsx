@@ -33,7 +33,6 @@ export default async function DashboardPage() {
       <TopBar
         session={session}
         title={t.appName}
-        subtitle={t.tagline}
         t={t}
       />
       <Tracker

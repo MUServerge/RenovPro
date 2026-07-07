@@ -62,28 +62,30 @@ export default async function ReportPage({
 
   return (
     <div className="mx-auto min-h-screen max-w-3xl bg-white p-5 text-brand-txt">
-      <div className="no-print mb-5 flex items-center justify-between gap-3">
-        <Link
-          href={backHref}
-          className="rounded-lg border border-brand-line px-3 py-1.5 text-sm font-semibold text-brand-dark"
-        >
-          ← {t.back}
-        </Link>
-        <div className="flex items-center gap-2">
+      <div className="no-print mb-5">
+        <div className="flex items-center justify-between gap-3">
+          <Link
+            href={backHref}
+            className="rounded-lg border border-brand-line px-3 py-1.5 text-sm font-semibold text-brand-dark"
+          >
+            ← {t.back}
+          </Link>
+          <PrintButton label={t.print} />
+        </div>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
           {[year - 1, year, year + 1].map((y) => (
             <Link
               key={y}
               href={`/report?year=${y}${u ? `&u=${u}` : ""}`}
               className={
                 y === year
-                  ? "rounded-lg bg-brand-dark px-3 py-1.5 text-sm font-bold text-white"
-                  : "rounded-lg border border-brand-line px-3 py-1.5 text-sm text-brand-dark"
+                  ? "rounded-lg bg-brand-dark px-4 py-1.5 text-sm font-bold text-white"
+                  : "rounded-lg border border-brand-line px-4 py-1.5 text-sm text-brand-dark"
               }
             >
               {y}
             </Link>
           ))}
-          <PrintButton label={t.print} />
         </div>
       </div>
 

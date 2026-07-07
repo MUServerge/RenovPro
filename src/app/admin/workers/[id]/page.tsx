@@ -5,7 +5,6 @@ import { prisma } from "@/lib/db";
 import { getDict } from "@/lib/i18n/dictionaries";
 import { toNum } from "@/lib/money";
 import Tracker from "@/components/Tracker";
-import ProfileForm from "@/components/ProfileForm";
 
 export const dynamic = "force-dynamic";
 
@@ -44,10 +43,18 @@ export default async function WorkerDetailPage({
           </div>
         </div>
         <Link
-          href={`/report?u=${user.id}`}
+          href={`/admin/workers/${user.id}/edit`}
           className="whitespace-nowrap rounded-lg bg-white/15 px-3 py-1.5 text-xs font-semibold hover:bg-white/25"
+          title={t.editProfile}
         >
-          📄 {t.annualReport}
+          ✎ {t.profile}
+        </Link>
+        <Link
+          href={`/report?u=${user.id}`}
+          className="whitespace-nowrap rounded-lg bg-white/15 px-2.5 py-1.5 text-xs font-semibold hover:bg-white/25"
+          title={t.annualReport}
+        >
+          📄
         </Link>
       </header>
 
@@ -68,28 +75,6 @@ export default async function WorkerDetailPage({
           amount: toNum(p.amount),
         }))}
       />
-
-      <div className="px-3 pb-28">
-        <h2 className="mb-2 mt-4 text-sm font-bold uppercase tracking-wide text-brand-muted">
-          {t.editProfile}
-        </h2>
-        <ProfileForm
-          t={t}
-          isAdmin
-          targetUserId={user.id}
-          values={{
-            photoUrl: user.photoUrl ?? "",
-            phone: user.phone ?? "",
-            address: user.address ?? "",
-            birthDate: user.birthDate ? user.birthDate.toISOString().slice(0, 10) : "",
-            nationality: user.nationality ?? "",
-            emergencyContact: user.emergencyContact ?? "",
-            position: user.position ?? "",
-            status: user.status,
-            notes: user.notes ?? "",
-          }}
-        />
-      </div>
     </div>
   );
 }

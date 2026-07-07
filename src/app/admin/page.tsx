@@ -82,7 +82,7 @@ export default async function AdminPage() {
 
   return (
     <div className="mx-auto min-h-screen max-w-4xl bg-[#eef1f5]">
-      <TopBar session={session} title={t.appName} subtitle={t.dashboard} t={t} />
+      <TopBar session={session} title={t.appName} t={t} />
 
       <div className="p-4">
         {/* Overview */}
