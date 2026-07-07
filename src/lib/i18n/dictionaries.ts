@@ -101,6 +101,10 @@ export type Dict = {
   photo: string;
   newPassword: string;
   passwordHint: string;
+  installApp: string;
+  install: string;
+  installLater: string;
+  installIosHint: string;
 };
 
 const uk: Dict = {
@@ -183,6 +187,10 @@ const uk: Dict = {
   photo: "Фото",
   newPassword: "Новий пароль",
   passwordHint: "Залиште порожнім, щоб не змінювати",
+  installApp: "Встановити застосунок",
+  install: "Встановити",
+  installLater: "Пізніше",
+  installIosHint: "Натисніть Поділитися, потім На екран Домівки",
 };
 
 const en: Dict = {
@@ -265,6 +273,10 @@ const en: Dict = {
   photo: "Photo",
   newPassword: "New password",
   passwordHint: "Leave empty to keep current",
+  installApp: "Install the app",
+  install: "Install",
+  installLater: "Later",
+  installIosHint: "Tap Share, then Add to Home Screen",
 };
 
 const fr: Dict = {
@@ -347,6 +359,10 @@ const fr: Dict = {
   photo: "Photo",
   newPassword: "Nouveau mot de passe",
   passwordHint: "Laissez vide pour conserver",
+  installApp: "Installer l'application",
+  install: "Installer",
+  installLater: "Plus tard",
+  installIosHint: "Appuyez sur Partager, puis Sur l'écran d'accueil",
 };
 
 const ka: Dict = {
@@ -429,6 +445,10 @@ const ka: Dict = {
   photo: "ფოტო",
   newPassword: "ახალი პაროლი",
   passwordHint: "დატოვე ცარიელი, თუ არ ცვლი",
+  installApp: "აპლიკაციის დაყენება",
+  install: "დაყენება",
+  installLater: "მოგვიანებით",
+  installIosHint: "დააჭირე Share-ს, მერე Add to Home Screen",
 };
 
 export const dictionaries: Record<Locale, Dict> = { ka, en, uk, fr };
