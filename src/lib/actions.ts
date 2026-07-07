@@ -161,9 +161,9 @@ export async function deletePayment(formData: FormData): Promise<void> {
 export async function setHourlyRate(formData: FormData): Promise<void> {
   const session = await getSession();
   if (!session) redirect("/login");
+  // Only admins may change the hourly rate.
+  if (session.role !== "admin") return;
   const targetId = String(formData.get("targetUserId") ?? session.id);
-  // Workers may only change their own rate; admins may change anyone's.
-  if (session.role !== "admin" && targetId !== session.id) return;
   const rate = parseNum(formData.get("rate"));
   if (isNaN(rate)) return;
 

@@ -31,12 +31,14 @@ export default function Tracker({
   entries,
   payments,
   targetUserId,
+  isAdmin = false,
 }: {
   t: Dict;
   rate: number;
   entries: Entry[];
   payments: Pay[];
   targetUserId?: string;
+  isAdmin?: boolean;
 }) {
   const [tab, setTab] = useState<"work" | "pay">("work");
   const [modal, setModal] = useState<null | "work" | "pay">(null);
@@ -109,25 +111,36 @@ export default function Tracker({
 
   return (
     <div className="pb-24">
-      {/* Rate */}
+      {/* Rate — editable by admin only, read-only for the worker */}
       <div className="px-3 pt-3">
-        <form
-          action={setHourlyRate}
-          className="flex items-center justify-between gap-2 rounded-xl border border-brand-line bg-white px-3 py-2.5"
-        >
-          {hidden}
-          <label className="text-sm font-semibold text-brand-txt">
-            {t.hourlyRate}
-          </label>
-          <input
-            name="rate"
-            type="text"
-            inputMode="decimal"
-            defaultValue={rate}
-            onBlur={(e) => e.currentTarget.form?.requestSubmit()}
-            className="w-20 rounded-lg bg-brand-yellow px-2 py-1.5 text-center text-base font-extrabold text-brand-dark outline-none"
-          />
-        </form>
+        {isAdmin ? (
+          <form
+            action={setHourlyRate}
+            className="flex items-center justify-between gap-2 rounded-xl border border-brand-line bg-white px-3 py-2.5"
+          >
+            {hidden}
+            <label className="text-sm font-semibold text-brand-txt">
+              {t.hourlyRate}
+            </label>
+            <input
+              name="rate"
+              type="text"
+              inputMode="decimal"
+              defaultValue={rate}
+              onBlur={(e) => e.currentTarget.form?.requestSubmit()}
+              className="w-20 rounded-lg bg-brand-yellow px-2 py-1.5 text-center text-base font-extrabold text-brand-dark outline-none"
+            />
+          </form>
+        ) : (
+          <div className="flex items-center justify-between gap-2 rounded-xl border border-brand-line bg-white px-3 py-2.5">
+            <span className="text-sm font-semibold text-brand-txt">
+              {t.hourlyRate}
+            </span>
+            <span className="w-20 rounded-lg bg-[#eef1f5] px-2 py-1.5 text-center text-base font-extrabold text-brand-dark">
+              {rate}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* KPI cards */}

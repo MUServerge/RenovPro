@@ -62,6 +62,7 @@ export default async function WorkerDetailPage({
         t={t}
         rate={toNum(user.hourlyRate)}
         targetUserId={user.id}
+        isAdmin
         entries={entries.map((e) => ({
           id: e.id,
           date: e.date.toISOString().slice(0, 10),
