@@ -12,6 +12,13 @@ export const LOCALE_LABELS: Record<Locale, string> = {
   fr: "Français",
 };
 
+export const LOCALE_FLAGS: Record<Locale, string> = {
+  ka: "🇬🇪",
+  en: "🇬🇧",
+  uk: "🇺🇦",
+  fr: "🇫🇷",
+};
+
 export type Dict = {
   appName: string;
   tagline: string;

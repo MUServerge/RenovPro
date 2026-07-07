@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { logoutAction, setLocale } from "@/lib/actions";
-import { LOCALES, LOCALE_LABELS, type Dict } from "@/lib/i18n/dictionaries";
+import { logoutAction } from "@/lib/actions";
+import type { Dict } from "@/lib/i18n/dictionaries";
 import type { SessionUser } from "@/lib/auth";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function TopBar({
   session,
@@ -38,7 +39,9 @@ export default function TopBar({
           </div>
         </div>
 
-        <div className="relative shrink-0" ref={ref}>
+        <div className="flex items-center gap-2">
+          <LanguageSwitcher current={session.locale} />
+          <div className="relative shrink-0" ref={ref}>
           <button
             onClick={() => setOpen((v) => !v)}
             aria-label="Menu"
@@ -74,26 +77,6 @@ export default function TopBar({
                 </Link>
               )}
 
-              <div className="border-t border-brand-line px-4 py-3">
-                <div className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-brand-muted">
-                  {t.language}
-                </div>
-                <form action={setLocale}>
-                  <select
-                    name="locale"
-                    defaultValue={session.locale}
-                    onChange={(e) => e.currentTarget.form?.requestSubmit()}
-                    className="w-full rounded-lg border border-brand-line bg-white px-2.5 py-2 text-sm font-semibold text-brand-txt outline-none"
-                  >
-                    {LOCALES.map((l) => (
-                      <option key={l} value={l}>
-                        {LOCALE_LABELS[l]}
-                      </option>
-                    ))}
-                  </select>
-                </form>
-              </div>
-
               <form action={logoutAction} className="border-t border-brand-line">
                 <button
                   type="submit"
@@ -105,6 +88,7 @@ export default function TopBar({
               </form>
             </div>
           )}
+          </div>
         </div>
       </div>
     </header>
