@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { updateProfile } from "@/lib/actions";
+import { photosEnabled, uploadPhoto } from "@/lib/photo-upload";
 import type { Dict } from "@/lib/i18n/dictionaries";
 
 export type ProfileValues = {
@@ -31,6 +32,20 @@ export default function ProfileForm({
   targetUserId?: string;
 }) {
   const [state, formAction, pending] = useActionState(updateProfile, {});
+  const [photo, setPhoto] = useState(values.photoUrl);
+  const [uploading, setUploading] = useState(false);
+
+  async function onPickPhoto(file: File | undefined) {
+    if (!file) return;
+    setUploading(true);
+    try {
+      setPhoto(await uploadPhoto(file));
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  }
 
   return (
     <form
@@ -41,18 +56,48 @@ export default function ProfileForm({
         <input type="hidden" name="targetUserId" value={targetUserId} />
       )}
 
-      {values.photoUrl && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={values.photoUrl}
-          alt=""
-          className="mb-3 h-20 w-20 rounded-full border border-brand-line object-cover"
-        />
+      {/* Photo upload */}
+      {photosEnabled() && (
+        <Field label={t.photo}>
+          <input type="hidden" name="photoUrl" value={photo} />
+          <div className="flex items-center gap-3">
+            {photo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={photo}
+                alt=""
+                className="h-16 w-16 rounded-full border border-brand-line object-cover"
+              />
+            ) : (
+              <div className="flex h-16 w-16 items-center justify-center rounded-full border border-dashed border-brand-line text-2xl text-brand-muted">
+                👤
+              </div>
+            )}
+            <div className="flex flex-col gap-1.5">
+              <label className="cursor-pointer rounded-lg bg-brand-dark px-3 py-2 text-center text-sm font-bold text-white">
+                {uploading ? "…" : "📷 " + t.photo}
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  disabled={uploading}
+                  onChange={(e) => onPickPhoto(e.target.files?.[0])}
+                  className="hidden"
+                />
+              </label>
+              {photo && (
+                <button
+                  type="button"
+                  onClick={() => setPhoto("")}
+                  className="rounded-lg bg-[#fbe9e9] px-3 py-1.5 text-sm font-semibold text-brand-danger"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          </div>
+        </Field>
       )}
-
-      <Field label={t.photoUrl}>
-        <input name="photoUrl" defaultValue={values.photoUrl} className={input} placeholder="https://…" />
-      </Field>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Field label={t.phone}>
@@ -71,6 +116,17 @@ export default function ProfileForm({
 
       <Field label={t.emergencyContact}>
         <input name="emergencyContact" defaultValue={values.emergencyContact} className={input} />
+      </Field>
+
+      {/* Password change */}
+      <Field label={t.newPassword}>
+        <input
+          name="password"
+          type="password"
+          autoComplete="new-password"
+          placeholder={t.passwordHint}
+          className={input}
+        />
       </Field>
 
       {isAdmin && (

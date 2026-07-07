@@ -92,6 +92,8 @@ export type Dict = {
   print: string;
   month: string;
   photo: string;
+  newPassword: string;
+  passwordHint: string;
 };
 
 const uk: Dict = {
@@ -172,6 +174,8 @@ const uk: Dict = {
   print: "Друк / PDF",
   month: "Місяць",
   photo: "Фото",
+  newPassword: "Новий пароль",
+  passwordHint: "Залиште порожнім, щоб не змінювати",
 };
 
 const en: Dict = {
@@ -252,6 +256,8 @@ const en: Dict = {
   print: "Print / PDF",
   month: "Month",
   photo: "Photo",
+  newPassword: "New password",
+  passwordHint: "Leave empty to keep current",
 };
 
 const fr: Dict = {
@@ -332,6 +338,8 @@ const fr: Dict = {
   print: "Imprimer / PDF",
   month: "Mois",
   photo: "Photo",
+  newPassword: "Nouveau mot de passe",
+  passwordHint: "Laissez vide pour conserver",
 };
 
 const ka: Dict = {
@@ -412,6 +420,8 @@ const ka: Dict = {
   print: "ბეჭდვა / PDF",
   month: "თვე",
   photo: "ფოტო",
+  newPassword: "ახალი პაროლი",
+  passwordHint: "დატოვე ცარიელი, თუ არ ცვლი",
 };
 
 export const dictionaries: Record<Locale, Dict> = { ka, en, uk, fr };

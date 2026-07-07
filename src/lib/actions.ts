@@ -228,6 +228,12 @@ export async function updateProfile(
     }
   }
 
+  // Optional password change (worker on own account, or admin on any).
+  const newPassword = String(formData.get("password") ?? "");
+  if (newPassword.length >= 4) {
+    data.passwordHash = await hashPassword(newPassword);
+  }
+
   await prisma.user.update({ where: { id: targetId }, data });
   revalidatePath(
     isAdmin && targetId !== session.id
