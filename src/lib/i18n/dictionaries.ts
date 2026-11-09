@@ -111,6 +111,18 @@ export type Dict = {
   monthNames: string[];
   weekdays: string[]; // short, Sunday first
   delete: string;
+  pushTitle: string;
+  pushDesc: string;
+  pushEnable: string;
+  pushEnabled: string;
+  pushDisable: string;
+  pushTest: string;
+  pushTestBody: string;
+  pushReminderBody: string;
+  pushBlocked: string;
+  pushIosHint: string;
+  pushUnsupported: string;
+  pushNoDevice: string;
   monthSalary: string;
   totalBalanceHint: string;
   monthHistory: string;
@@ -208,6 +220,18 @@ const uk: Dict = {
   monthNames: ["Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень"],
   weekdays: ["Нд", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
   delete: "Видалити",
+  pushTitle: "Щоденне нагадування",
+  pushDesc: "Сповіщення на телефон увечері (Пн–Сб), якщо ви не внесли сьогоднішню роботу.",
+  pushEnable: "Увімкнути нагадування",
+  pushEnabled: "Нагадування увімкнено",
+  pushDisable: "Вимкнути",
+  pushTest: "Тест",
+  pushTestBody: "✅ Сповіщення працюють!",
+  pushReminderBody: "🔔 Ви ще не внесли сьогоднішню роботу. Натисніть, щоб додати.",
+  pushBlocked: "Сповіщення заблоковано. Дозвольте їх у налаштуваннях телефону/браузера для цього сайту.",
+  pushIosHint: "На iPhone: спершу додайте застосунок на головний екран (Поділитися → На початковий екран), потім відкрийте його звідти.",
+  pushUnsupported: "Цей браузер не підтримує сповіщення.",
+  pushNoDevice: "Жоден пристрій не отримав. Вимкніть і знову увімкніть нагадування.",
   monthSalary: "Зарплата за місяць",
   totalBalanceHint: "за весь час",
   monthHistory: "Історія місяців",
@@ -305,6 +329,18 @@ const en: Dict = {
   monthNames: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
   weekdays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
   delete: "Delete",
+  pushTitle: "Daily reminder",
+  pushDesc: "A phone notification in the evening (Mon–Sat) if you haven't logged today's work.",
+  pushEnable: "Turn on reminders",
+  pushEnabled: "Reminders are on",
+  pushDisable: "Turn off",
+  pushTest: "Send test",
+  pushTestBody: "✅ Notifications work!",
+  pushReminderBody: "🔔 You haven't logged today's work yet. Tap to add it.",
+  pushBlocked: "Notifications are blocked. Allow them in your phone/browser settings for this site.",
+  pushIosHint: "On iPhone: first add the app to the Home Screen (Share → Add to Home Screen), then open it from there.",
+  pushUnsupported: "This browser doesn't support notifications.",
+  pushNoDevice: "No device received it. Turn reminders off and on again.",
   monthSalary: "Month salary",
   totalBalanceHint: "all time",
   monthHistory: "Month history",
@@ -402,6 +438,18 @@ const fr: Dict = {
   monthNames: ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
   weekdays: ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"],
   delete: "Supprimer",
+  pushTitle: "Rappel quotidien",
+  pushDesc: "Une notification le soir (lun–sam) si vous n'avez pas saisi la journée.",
+  pushEnable: "Activer les rappels",
+  pushEnabled: "Rappels activés",
+  pushDisable: "Désactiver",
+  pushTest: "Tester",
+  pushTestBody: "✅ Les notifications fonctionnent !",
+  pushReminderBody: "🔔 Vous n'avez pas encore saisi la journée. Touchez pour l'ajouter.",
+  pushBlocked: "Notifications bloquées. Autorisez-les dans les réglages du téléphone/navigateur pour ce site.",
+  pushIosHint: "Sur iPhone : ajoutez d'abord l'app à l'écran d'accueil (Partager → Sur l'écran d'accueil), puis ouvrez-la depuis là.",
+  pushUnsupported: "Ce navigateur ne prend pas en charge les notifications.",
+  pushNoDevice: "Aucun appareil ne l'a reçue. Désactivez puis réactivez les rappels.",
   monthSalary: "Salaire du mois",
   totalBalanceHint: "depuis le début",
   monthHistory: "Historique des mois",
@@ -499,6 +547,18 @@ const ka: Dict = {
   monthNames: ["იანვარი", "თებერვალი", "მარტი", "აპრილი", "მაისი", "ივნისი", "ივლისი", "აგვისტო", "სექტემბერი", "ოქტომბერი", "ნოემბერი", "დეკემბერი"],
   weekdays: ["კვ", "ორ", "სმ", "ოთ", "ხთ", "პრ", "შბ"],
   delete: "წაშლა",
+  pushTitle: "ყოველდღიური შეხსენება",
+  pushDesc: "საღამოს (ორშ–შაბ) ტელეფონზე შეტყობინება მოვა, თუ დღევანდელი სამუშაო არ შეგივსია.",
+  pushEnable: "შეხსენების ჩართვა",
+  pushEnabled: "შეხსენება ჩართულია",
+  pushDisable: "გამორთვა",
+  pushTest: "ტესტი",
+  pushTestBody: "✅ შეტყობინებები მუშაობს!",
+  pushReminderBody: "🔔 დღევანდელი სამუშაო ჯერ არ შეგივსია. დააჭირე და დაამატე.",
+  pushBlocked: "შეტყობინებები დაბლოკილია. ტელეფონის/ბრაუზერის პარამეტრებში ამ საიტისთვის დაუშვი.",
+  pushIosHint: "iPhone-ზე: ჯერ აპი მთავარ ეკრანზე დაამატე (Share → Add to Home Screen) და იქიდან გახსენი.",
+  pushUnsupported: "ეს ბრაუზერი შეტყობინებებს არ უჭერს მხარს.",
+  pushNoDevice: "ვერცერთმა მოწყობილობამ ვერ მიიღო. გამორთე და თავიდან ჩართე შეხსენება.",
   monthSalary: "თვის ხელფასი",
   totalBalanceHint: "სულ, ყველა თვე",
   monthHistory: "თვეების ისტორია",

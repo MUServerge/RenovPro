@@ -185,104 +185,101 @@ export default function Tracker({
 
   return (
     <div className="pb-24">
-      {/* Rate — editable by admin only, read-only for the worker */}
+      {/* Summary card — month navigator, month salary, balance, stats & rate */}
       <div className="px-3 pt-3">
-        {isAdmin ? (
-          <form
-            action={setHourlyRate}
-            className="flex items-center justify-between gap-2 rounded-xl border border-brand-line bg-white px-3 py-2.5"
-          >
-            {hidden}
-            <label className="text-sm font-semibold text-brand-txt">
-              {t.hourlyRate}
-            </label>
-            <input
-              name="rate"
-              type="text"
-              inputMode="decimal"
-              defaultValue={rate}
-              onBlur={(e) => e.currentTarget.form?.requestSubmit()}
-              className="w-20 rounded-lg bg-brand-yellow px-2 py-1.5 text-center text-base font-extrabold text-brand-dark outline-none"
-            />
-          </form>
-        ) : (
-          <div className="flex items-center justify-between gap-2 rounded-xl border border-brand-line bg-white px-3 py-2.5">
-            <span className="text-sm font-semibold text-brand-txt">
-              {t.hourlyRate}
-            </span>
-            <span className="w-20 rounded-lg bg-[#eef1f5] px-2 py-1.5 text-center text-base font-extrabold text-brand-dark">
-              {rate}
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* Month navigator */}
-      <div className="px-3 pt-3">
-        <div className="flex items-center gap-2 rounded-xl border border-brand-line bg-white px-2 py-2">
-          <button
-            type="button"
-            onClick={() => olderMonth && setMonth(olderMonth)}
-            disabled={!olderMonth}
-            className="h-9 w-9 flex-none rounded-lg bg-brand-light text-lg font-bold text-brand-dark disabled:opacity-30"
-            aria-label="previous month"
-          >
-            ‹
-          </button>
-          <div className="min-w-0 flex-1 text-center">
-            <div className="truncate text-base font-extrabold text-brand-dark">
-              {monthLabel(month, t.monthNames)}
-            </div>
-            <div
-              className={`text-[11px] font-bold ${isCurrent ? "text-[#2e8b57]" : "text-brand-muted"}`}
+        <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-brand-dark to-[#2a5f8f] text-white shadow-card">
+          {/* Month navigator */}
+          <div className="flex items-center gap-1 px-2 pt-2">
+            <button
+              type="button"
+              onClick={() => olderMonth && setMonth(olderMonth)}
+              disabled={!olderMonth}
+              className="h-8 w-8 flex-none rounded-lg bg-white/10 text-lg font-bold disabled:opacity-25"
+              aria-label="previous month"
             >
-              {isCurrent ? `● ${t.thisMonth}` : `🔒 ${t.monthClosed}`}
+              ‹
+            </button>
+            <div className="min-w-0 flex-1 text-center leading-tight">
+              <div className="truncate text-[15px] font-extrabold">
+                {monthLabel(month, t.monthNames)}
+              </div>
+              <div
+                className={`text-[10px] font-bold ${isCurrent ? "text-[#9be3b5]" : "text-white/60"}`}
+              >
+                {isCurrent ? `● ${t.thisMonth}` : `🔒 ${t.monthClosed}`}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => newerMonth && setMonth(newerMonth)}
+              disabled={!newerMonth}
+              className="h-8 w-8 flex-none rounded-lg bg-white/10 text-lg font-bold disabled:opacity-25"
+              aria-label="next month"
+            >
+              ›
+            </button>
+          </div>
+
+          {/* Month salary + all-time balance */}
+          <div className="flex items-end justify-between gap-3 px-4 pb-3 pt-2.5">
+            <div className="min-w-0">
+              <div className="text-[11px] font-semibold text-white/70">
+                {t.monthSalary}
+              </div>
+              <div className="truncate text-[26px] font-extrabold leading-tight">
+                {eur(monthTotals.salary)}
+              </div>
+            </div>
+            <div className="min-w-0 rounded-xl bg-brand-yellow px-2.5 py-1.5 text-right text-brand-dark">
+              <div className="truncate text-[10px] font-bold leading-tight">
+                {t.balanceDue}
+              </div>
+              <div className="truncate text-base font-extrabold leading-tight">
+                {eur(totals.balance)}
+              </div>
+              <div className="truncate text-[9px] font-semibold leading-tight opacity-70">
+                {t.totalBalanceHint}
+              </div>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={() => newerMonth && setMonth(newerMonth)}
-            disabled={!newerMonth}
-            className="h-9 w-9 flex-none rounded-lg bg-brand-light text-lg font-bold text-brand-dark disabled:opacity-30"
-            aria-label="next month"
-          >
-            ›
-          </button>
-        </div>
-      </div>
 
-      {/* KPI cards */}
-      <div className="grid grid-cols-2 gap-2.5 px-3 pt-3">
-        <div className="rounded-2xl border border-brand-dark/15 bg-brand-green p-3 shadow-card">
-          <div className="text-[11px] font-bold tracking-wide text-brand-dark">
-            {t.monthSalary}
-          </div>
-          <div className="mt-0.5 text-2xl font-extrabold">
-            {eur(monthTotals.salary)}
+          {/* Stats row */}
+          <div className="grid grid-cols-4 divide-x divide-white/15 border-t border-white/15 bg-black/10">
+            <Stat value={hoursLabel(monthTotals.hours)} label={t.hours} />
+            <Stat value={String(monthTotals.days)} label={t.days} />
+            <Stat value={`${Math.round(monthTotals.paid)}€`} label={t.paid} />
+            {isAdmin ? (
+              <form action={setHourlyRate} className="px-1 py-2 text-center">
+                {hidden}
+                <div className="flex items-baseline justify-center">
+                  <input
+                    name="rate"
+                    type="text"
+                    inputMode="decimal"
+                    defaultValue={rate}
+                    onBlur={(e) => e.currentTarget.form?.requestSubmit()}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") e.currentTarget.blur();
+                    }}
+                    aria-label={t.hourlyRate}
+                    style={{ width: `${Math.max(String(rate).length, 2) + 0.5}ch` }}
+                    className="rounded-none border-b-2 border-dashed border-brand-yellow bg-transparent text-center text-[15px] font-extrabold text-brand-yellow outline-none focus:bg-white/10"
+                  />
+                  <span className="text-[13px] font-extrabold text-brand-yellow">€</span>
+                </div>
+                <div className="mt-0.5 truncate text-[9.5px] font-bold uppercase tracking-wide text-white/60">
+                  {t.rate} ✎
+                </div>
+              </form>
+            ) : (
+              <Stat value={`${rate}€`} label={t.rate} />
+            )}
           </div>
         </div>
-        <div className="rounded-2xl border border-brand-dark/15 bg-brand-yellow p-3 shadow-card">
-          <div className="text-[11px] font-bold tracking-wide text-brand-dark">
-            {t.balanceDue}
-          </div>
-          <div className="mt-0.5 text-2xl font-extrabold">
-            {eur(totals.balance)}
-          </div>
-          <div className="text-[10px] font-semibold text-brand-dark/70">
-            {t.totalBalanceHint}
-          </div>
-        </div>
-      </div>
-
-      {/* Mini stats */}
-      <div className="grid grid-cols-3 gap-2 px-3 pt-2.5">
-        <MiniStat value={hoursLabel(monthTotals.hours)} label={t.hours} />
-        <MiniStat value={String(monthTotals.days)} label={t.days} />
-        <MiniStat value={`${Math.round(monthTotals.paid)}€`} label={t.paid} />
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 p-3">
+      <div className="mx-3 mb-2.5 mt-3 flex gap-1 rounded-xl border border-brand-line bg-white p-1">
         <TabButton active={tab === "work"} onClick={() => setTab("work")}>
           {t.workJournal}
         </TabButton>
@@ -388,15 +385,6 @@ export default function Tracker({
           </div>
         </div>
       )}
-
-      {/* FAB */}
-      <button
-        onClick={() => openModal(tab)}
-        className="fixed bottom-20 right-4 z-30 h-14 w-14 rounded-full bg-brand-med text-3xl text-white shadow-[0_4px_14px_rgba(46,117,182,.5)]"
-        aria-label={t.addEntry}
-      >
-        +
-      </button>
 
       {/* Bottom bar */}
       <div className="fixed inset-x-0 bottom-0 z-20 flex gap-2.5 border-t border-brand-line bg-white p-3">
@@ -552,11 +540,11 @@ export default function Tracker({
 const inputCls =
   "w-full rounded-xl border border-brand-line p-3 text-base outline-none focus:border-brand-med";
 
-function MiniStat({ value, label }: { value: string; label: string }) {
+function Stat({ value, label }: { value: string; label: string }) {
   return (
-    <div className="rounded-xl border border-brand-line bg-white px-1 py-2 text-center shadow-card">
-      <div className="text-[15px] font-extrabold text-brand-dark">{value}</div>
-      <div className="mt-0.5 text-[9.5px] font-bold uppercase tracking-wide text-brand-muted">
+    <div className="min-w-0 px-1 py-2 text-center">
+      <div className="truncate text-[15px] font-extrabold">{value}</div>
+      <div className="mt-0.5 truncate text-[9.5px] font-bold uppercase tracking-wide text-white/60">
         {label}
       </div>
     </div>
@@ -575,10 +563,8 @@ function TabButton({
   return (
     <button
       onClick={onClick}
-      className={`flex-1 rounded-xl border py-2.5 text-sm font-bold ${
-        active
-          ? "border-brand-dark bg-brand-dark text-white"
-          : "border-brand-line bg-white text-brand-dark"
+      className={`flex-1 rounded-lg py-2 text-sm font-bold transition-colors ${
+        active ? "bg-brand-dark text-white shadow-card" : "text-brand-dark"
       }`}
     >
       {children}

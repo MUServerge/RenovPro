@@ -1,5 +1,5 @@
 /* MaysterPRO service worker — minimal, safe caching. */
-const CACHE = "maysterpro-v1";
+const CACHE = "maysterpro-v2";
 const ASSETS = ["/manifest.webmanifest", "/icons/icon-192.png", "/icons/icon-512.png"];
 
 self.addEventListener("install", (event) => {
@@ -45,4 +45,39 @@ self.addEventListener("fetch", (event) => {
       fetch(req).catch(() => caches.match(req).then((hit) => hit || caches.match("/"))),
     );
   }
+});
+
+// ---- Push notifications (daily reminder) ----
+self.addEventListener("push", (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch (e) {
+    data = { body: event.data ? event.data.text() : "" };
+  }
+  event.waitUntil(
+    self.registration.showNotification(data.title || "MaysterPRO", {
+      body: data.body || "",
+      icon: "/icons/icon-192.png",
+      badge: "/icons/icon-192.png",
+      data: { url: data.url || "/dashboard" },
+      tag: "daily-reminder",
+    }),
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = (event.notification.data && event.notification.data.url) || "/dashboard";
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
+      for (const c of list) {
+        if ("focus" in c) {
+          c.navigate(url);
+          return c.focus();
+        }
+      }
+      return self.clients.openWindow(url);
+    }),
+  );
 });

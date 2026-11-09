@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getDict } from "@/lib/i18n/dictionaries";
 import ProfileForm from "@/components/ProfileForm";
+import PushToggle from "@/components/PushToggle";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +37,11 @@ export default async function ProfilePage() {
       </header>
 
       <div className="p-4">
+        {session.role === "worker" && (
+          <div className="mb-4">
+            <PushToggle t={t} />
+          </div>
+        )}
         <ProfileForm
           t={t}
           isAdmin={false}
