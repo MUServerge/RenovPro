@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useFormStatus } from "react-dom";
 import {
   addWorkEntry,
   updateWorkEntry,
@@ -60,16 +61,33 @@ export default function Tracker({
   const [editItem, setEditItem] = useState<Entry | Pay | null>(null);
   const [photo, setPhoto] = useState<string>("");
   const [uploading, setUploading] = useState(false);
+  // Controlled so the quick-pick chips can fill them.
+  const [hoursVal, setHoursVal] = useState("8");
+  const [addrVal, setAddrVal] = useState("");
+
+  // Most recent entry (by date, then by insertion order).
+  const lastEntry = useMemo(
+    () =>
+      entries.reduce<Entry | undefined>(
+        (best, e) => (!best || e.date >= best.date ? e : best),
+        undefined,
+      ),
+    [entries],
+  );
 
   function openModal(kind: "work" | "pay") {
     setEditItem(null);
     setPhoto("");
+    setHoursVal(lastEntry ? String(lastEntry.hours) : "8");
+    setAddrVal(lastEntry?.address ?? "");
     setModal(kind);
   }
 
   function openEditWork(e: Entry) {
     setEditItem(e);
     setPhoto(e.photoUrl ?? "");
+    setHoursVal(String(e.hours));
+    setAddrVal(e.address);
     setModal("work");
   }
 
@@ -149,7 +167,21 @@ export default function Tracker({
     [entries],
   );
 
-  const lastAddr = entries.length ? entries[entries.length - 1].address : "";
+  // Up to 4 most recently used addresses, newest first — shown as chips.
+  const recentAddrs = useMemo(() => {
+    const out: string[] = [];
+    [...entries]
+      .sort((a, b) => (a.date > b.date ? -1 : 1))
+      .forEach((e) => {
+        if (e.address && !out.includes(e.address) && out.length < 4)
+          out.push(e.address);
+      });
+    return out;
+  }, [entries]);
+
+  // "Same as last day" is offered when today is still empty.
+  const canRepeat =
+    isCurrent && !!lastEntry && !entries.some((e) => e.date === today);
 
   function exportCSV() {
     let csv = `${t.appName} - ${t.tagline}\n`;
@@ -290,13 +322,25 @@ export default function Tracker({
 
       {/* List — compact 3-column grid; tap a card to edit or delete it */}
       <div className="px-3">
+        {tab === "work" && canRepeat && lastEntry && (
+          <form action={addWorkEntry} className="mb-2">
+            {hidden}
+            <input type="hidden" name="date" value={today} />
+            <input type="hidden" name="hours" value={String(lastEntry.hours)} />
+            <input type="hidden" name="address" value={lastEntry.address} />
+            <RepeatButton
+              title={t.repeatToday}
+              detail={`${lastEntry.address || "—"} · ${hoursLabel(lastEntry.hours)}`}
+            />
+          </form>
+        )}
         {tab === "work" ? (
           monthEntries.length === 0 ? (
             <Empty>{t.noWork}</Empty>
           ) : (
             <div className="grid grid-cols-3 gap-2">
               {[...monthEntries]
-                .sort((a, b) => (a.date > b.date ? -1 : 1))
+                .sort((a, b) => (a.date < b.date ? -1 : 1))
                 .map((e) => (
                   <button
                     key={e.id}
@@ -323,7 +367,7 @@ export default function Tracker({
         ) : (
           <div className="grid grid-cols-3 gap-2">
             {[...monthPays]
-              .sort((a, b) => (a.date > b.date ? -1 : 1))
+              .sort((a, b) => (a.date < b.date ? -1 : 1))
               .map((p) => (
                 <button
                   key={p.id}
@@ -447,10 +491,26 @@ export default function Tracker({
                   <input name="date" type="date" defaultValue={editWork?.date ?? defaultDate} className={inputCls} />
                 </Field>
                 <Field label={t.hoursLabel}>
-                  <input name="hours" type="text" inputMode="decimal" defaultValue={editWork ? String(editWork.hours) : "8"} placeholder={t.hoursPlaceholder} className={inputCls} />
+                  <input name="hours" type="text" inputMode="decimal" value={hoursVal} onChange={(e) => setHoursVal(e.target.value)} placeholder={t.hoursPlaceholder} className={inputCls} />
+                  <div className="mt-1.5 flex gap-1.5">
+                    {["4", "6", "7", "8", "9", "10"].map((h) => (
+                      <Chip key={h} active={hoursVal.replace(",", ".") === h} onClick={() => setHoursVal(h)}>
+                        {h}
+                      </Chip>
+                    ))}
+                  </div>
                 </Field>
                 <Field label={t.address}>
-                  <input name="address" list="addr-list" defaultValue={editWork ? editWork.address : lastAddr} placeholder={t.addressPlaceholder} className={inputCls} />
+                  <input name="address" list="addr-list" value={addrVal} onChange={(e) => setAddrVal(e.target.value)} placeholder={t.addressPlaceholder} className={inputCls} />
+                  {recentAddrs.length > 0 && (
+                    <div className="mt-1.5 flex flex-wrap gap-1.5">
+                      {recentAddrs.map((a) => (
+                        <Chip key={a} active={addrVal === a} onClick={() => setAddrVal(a)} wide>
+                          {a}
+                        </Chip>
+                      ))}
+                    </div>
+                  )}
                   <datalist id="addr-list">
                     {addresses.map((a) => (
                       <option key={a} value={a} />
@@ -568,6 +628,50 @@ function TabButton({
       }`}
     >
       {children}
+    </button>
+  );
+}
+
+function Chip({
+  active,
+  onClick,
+  wide = false,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  wide?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`${wide ? "max-w-[48%] truncate px-2.5" : "flex-1"} rounded-lg border py-1.5 text-sm font-bold ${
+        active
+          ? "border-brand-dark bg-brand-dark text-white"
+          : "border-brand-line bg-[#f5f7fa] text-brand-dark"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function RepeatButton({ title, detail }: { title: string; detail: string }) {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="flex w-full items-center gap-2.5 rounded-xl border border-dashed border-brand-med bg-white px-3 py-2 text-left disabled:opacity-50"
+    >
+      <span className="text-lg text-brand-med">{pending ? "…" : "↻"}</span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-bold text-brand-dark">{title}</span>
+        <span className="block truncate text-xs text-brand-muted">{detail}</span>
+      </span>
+      <span className="rounded-lg bg-brand-dark px-2.5 py-1 text-xs font-bold text-white">+</span>
     </button>
   );
 }

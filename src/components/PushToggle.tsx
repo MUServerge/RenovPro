@@ -137,6 +137,9 @@ export default function PushToggle({
     }
   }
 
+  // Reminders not set up on the server yet (no VAPID key) — show nothing.
+  if (!VAPID) return null;
+
   if (variant === "banner") {
     if (dismissed || state !== "off") return null;
     return (
