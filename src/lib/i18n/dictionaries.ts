@@ -108,6 +108,14 @@ export type Dict = {
   edit: string;
   deleteWorker: string;
   deleteWorkerConfirm: string;
+  monthNames: string[];
+  weekdays: string[]; // short, Sunday first
+  delete: string;
+  monthSalary: string;
+  totalBalanceHint: string;
+  monthHistory: string;
+  thisMonth: string;
+  monthClosed: string;
 };
 
 const uk: Dict = {
@@ -197,6 +205,14 @@ const uk: Dict = {
   edit: "Редагувати",
   deleteWorker: "Видалити працівника",
   deleteWorkerConfirm: "Видалити цього працівника та всі його дані?",
+  monthNames: ["Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень"],
+  weekdays: ["Нд", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
+  delete: "Видалити",
+  monthSalary: "Зарплата за місяць",
+  totalBalanceHint: "за весь час",
+  monthHistory: "Історія місяців",
+  thisMonth: "Поточний місяць",
+  monthClosed: "Місяць закрито",
 };
 
 const en: Dict = {
@@ -286,6 +302,14 @@ const en: Dict = {
   edit: "Edit",
   deleteWorker: "Delete worker",
   deleteWorkerConfirm: "Delete this worker and all their data?",
+  monthNames: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+  weekdays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+  delete: "Delete",
+  monthSalary: "Month salary",
+  totalBalanceHint: "all time",
+  monthHistory: "Month history",
+  thisMonth: "Current month",
+  monthClosed: "Month closed",
 };
 
 const fr: Dict = {
@@ -375,6 +399,14 @@ const fr: Dict = {
   edit: "Modifier",
   deleteWorker: "Supprimer l'ouvrier",
   deleteWorkerConfirm: "Supprimer cet ouvrier et toutes ses données ?",
+  monthNames: ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
+  weekdays: ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"],
+  delete: "Supprimer",
+  monthSalary: "Salaire du mois",
+  totalBalanceHint: "depuis le début",
+  monthHistory: "Historique des mois",
+  thisMonth: "Mois en cours",
+  monthClosed: "Mois clôturé",
 };
 
 const ka: Dict = {
@@ -464,6 +496,14 @@ const ka: Dict = {
   edit: "რედაქტირება",
   deleteWorker: "თანამშრომლის წაშლა",
   deleteWorkerConfirm: "წავშალო ეს თანამშრომელი და მისი ყველა მონაცემი?",
+  monthNames: ["იანვარი", "თებერვალი", "მარტი", "აპრილი", "მაისი", "ივნისი", "ივლისი", "აგვისტო", "სექტემბერი", "ოქტომბერი", "ნოემბერი", "დეკემბერი"],
+  weekdays: ["კვ", "ორ", "სმ", "ოთ", "ხთ", "პრ", "შბ"],
+  delete: "წაშლა",
+  monthSalary: "თვის ხელფასი",
+  totalBalanceHint: "სულ, ყველა თვე",
+  monthHistory: "თვეების ისტორია",
+  thisMonth: "მიმდინარე თვე",
+  monthClosed: "თვე დახურულია",
 };
 
 export const dictionaries: Record<Locale, Dict> = { ka, en, uk, fr };

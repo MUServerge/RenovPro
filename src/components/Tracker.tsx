@@ -23,6 +23,19 @@ export type Entry = {
 };
 export type Pay = { id: string; date: string; amount: number };
 
+function monthLabel(ym: string, names: string[]): string {
+  const [y, m] = ym.split("-");
+  return `${names[Number(m) - 1] ?? m} ${y}`;
+}
+
+function summarize(entries: Entry[], payments: Pay[], rate: number) {
+  const hours = entries.reduce((s, e) => s + (e.hours || 0), 0);
+  const days = new Set(entries.map((e) => e.date)).size;
+  const salary = hours * rate;
+  const paid = payments.reduce((s, p) => s + (p.amount || 0), 0);
+  return { hours, days, salary, paid, balance: salary - paid };
+}
+
 function hoursLabel(n: number): string {
   return (n % 1 ? n.toFixed(n % 1 === 0.5 ? 1 : 2) : n.toFixed(0)) + " h";
 }
@@ -81,43 +94,86 @@ export default function Tracker({
     }
   }
 
-  const totals = useMemo(() => {
-    const hours = entries.reduce((s, e) => s + (e.hours || 0), 0);
-    const days = new Set(entries.map((e) => e.date)).size;
-    const salary = hours * rate;
-    const paid = payments.reduce((s, p) => s + (p.amount || 0), 0);
-    return { hours, days, salary, paid, balance: salary - paid };
-  }, [entries, payments, rate]);
+  const today = new Date().toISOString().slice(0, 10);
+  const currentMonth = today.slice(0, 7);
+  const [month, setMonth] = useState<string>(currentMonth);
+
+  // All-time totals — the balance due carries over from month to month.
+  const totals = useMemo(
+    () => summarize(entries, payments, rate),
+    [entries, payments, rate],
+  );
+
+  // Every month that has data, plus the current one, newest first.
+  const months = useMemo(() => {
+    const set = new Set<string>([currentMonth, month]);
+    entries.forEach((e) => set.add(e.date.slice(0, 7)));
+    payments.forEach((p) => set.add(p.date.slice(0, 7)));
+    return [...set].sort((a, b) => (a > b ? -1 : 1));
+  }, [entries, payments, currentMonth, month]);
+
+  const monthEntries = useMemo(
+    () => entries.filter((e) => e.date.startsWith(month)),
+    [entries, month],
+  );
+  const monthPays = useMemo(
+    () => payments.filter((p) => p.date.startsWith(month)),
+    [payments, month],
+  );
+  const monthTotals = useMemo(
+    () => summarize(monthEntries, monthPays, rate),
+    [monthEntries, monthPays, rate],
+  );
+
+  const history = useMemo(
+    () =>
+      months.map((m) => ({
+        month: m,
+        ...summarize(
+          entries.filter((e) => e.date.startsWith(m)),
+          payments.filter((p) => p.date.startsWith(m)),
+          rate,
+        ),
+      })),
+    [months, entries, payments, rate],
+  );
+
+  const monthIdx = months.indexOf(month);
+  const olderMonth = months[monthIdx + 1];
+  const newerMonth = monthIdx > 0 ? months[monthIdx - 1] : undefined;
+  const isCurrent = month === currentMonth;
+  const defaultDate = isCurrent ? today : `${month}-01`;
 
   const addresses = useMemo(
     () => [...new Set(entries.map((e) => e.address).filter(Boolean))],
     [entries],
   );
 
-  const today = new Date().toISOString().slice(0, 10);
   const lastAddr = entries.length ? entries[entries.length - 1].address : "";
 
   function exportCSV() {
     let csv = `${t.appName} - ${t.tagline}\n`;
+    csv += `${t.month},${monthLabel(month, t.monthNames)}\n`;
     csv += `${t.hourlyRate},${rate}\n\n${t.workJournal}\n${t.date},${t.hours},${t.address},${t.salaryTotal}\n`;
-    [...entries]
+    [...monthEntries]
       .sort((a, b) => (a.date < b.date ? -1 : 1))
       .forEach((x) => {
         csv += `${fmtDate(x.date)},${x.hours},"${(x.address || "").replace(/"/g, '""')}",${(x.hours * rate).toFixed(2)}\n`;
       });
-    csv += `${t.hours},${totals.hours.toFixed(2)},,${totals.salary.toFixed(2)}\n`;
-    csv += `${t.days},${totals.days}\n\n${t.payments}\n${t.paymentDate},${t.paymentAmount}\n`;
-    [...payments]
+    csv += `${t.hours},${monthTotals.hours.toFixed(2)},,${monthTotals.salary.toFixed(2)}\n`;
+    csv += `${t.days},${monthTotals.days}\n\n${t.payments}\n${t.paymentDate},${t.paymentAmount}\n`;
+    [...monthPays]
       .sort((a, b) => (a.date < b.date ? -1 : 1))
       .forEach((x) => {
         csv += `${fmtDate(x.date)},${x.amount.toFixed(2)}\n`;
       });
-    csv += `${t.paid},${totals.paid.toFixed(2)}\n${t.balanceDue},${totals.balance.toFixed(2)}\n`;
+    csv += `${t.paid},${monthTotals.paid.toFixed(2)}\n`;
+    csv += `${t.balanceDue} (${t.totalBalanceHint}),${totals.balance.toFixed(2)}\n`;
 
     const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `MaysterPRO_${today}.csv`;
+    a.download = `MaysterPRO_${month}.csv`;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -161,14 +217,48 @@ export default function Tracker({
         )}
       </div>
 
+      {/* Month navigator */}
+      <div className="px-3 pt-3">
+        <div className="flex items-center gap-2 rounded-xl border border-brand-line bg-white px-2 py-2">
+          <button
+            type="button"
+            onClick={() => olderMonth && setMonth(olderMonth)}
+            disabled={!olderMonth}
+            className="h-9 w-9 flex-none rounded-lg bg-brand-light text-lg font-bold text-brand-dark disabled:opacity-30"
+            aria-label="previous month"
+          >
+            ‹
+          </button>
+          <div className="min-w-0 flex-1 text-center">
+            <div className="truncate text-base font-extrabold text-brand-dark">
+              {monthLabel(month, t.monthNames)}
+            </div>
+            <div
+              className={`text-[11px] font-bold ${isCurrent ? "text-[#2e8b57]" : "text-brand-muted"}`}
+            >
+              {isCurrent ? `● ${t.thisMonth}` : `🔒 ${t.monthClosed}`}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => newerMonth && setMonth(newerMonth)}
+            disabled={!newerMonth}
+            className="h-9 w-9 flex-none rounded-lg bg-brand-light text-lg font-bold text-brand-dark disabled:opacity-30"
+            aria-label="next month"
+          >
+            ›
+          </button>
+        </div>
+      </div>
+
       {/* KPI cards */}
       <div className="grid grid-cols-2 gap-2.5 px-3 pt-3">
         <div className="rounded-2xl border border-brand-dark/15 bg-brand-green p-3 shadow-card">
           <div className="text-[11px] font-bold tracking-wide text-brand-dark">
-            {t.salaryTotal}
+            {t.monthSalary}
           </div>
           <div className="mt-0.5 text-2xl font-extrabold">
-            {eur(totals.salary)}
+            {eur(monthTotals.salary)}
           </div>
         </div>
         <div className="rounded-2xl border border-brand-dark/15 bg-brand-yellow p-3 shadow-card">
@@ -178,14 +268,17 @@ export default function Tracker({
           <div className="mt-0.5 text-2xl font-extrabold">
             {eur(totals.balance)}
           </div>
+          <div className="text-[10px] font-semibold text-brand-dark/70">
+            {t.totalBalanceHint}
+          </div>
         </div>
       </div>
 
       {/* Mini stats */}
       <div className="grid grid-cols-3 gap-2 px-3 pt-2.5">
-        <MiniStat value={hoursLabel(totals.hours)} label={t.hours} />
-        <MiniStat value={String(totals.days)} label={t.days} />
-        <MiniStat value={`${Math.round(totals.paid)}€`} label={t.paid} />
+        <MiniStat value={hoursLabel(monthTotals.hours)} label={t.hours} />
+        <MiniStat value={String(monthTotals.days)} label={t.days} />
+        <MiniStat value={`${Math.round(monthTotals.paid)}€`} label={t.paid} />
       </div>
 
       {/* Tabs */}
@@ -198,64 +291,103 @@ export default function Tracker({
         </TabButton>
       </div>
 
-      {/* List */}
-      <div className="flex flex-col gap-2 px-3">
+      {/* List — compact 3-column grid; tap a card to edit or delete it */}
+      <div className="px-3">
         {tab === "work" ? (
-          entries.length === 0 ? (
+          monthEntries.length === 0 ? (
             <Empty>{t.noWork}</Empty>
           ) : (
-            [...entries]
-              .sort((a, b) => (a.date > b.date ? -1 : 1))
-              .map((e) => (
-                <div key={e.id} className="flex items-center gap-2.5 rounded-xl border border-brand-line bg-white px-3 py-2.5">
-                  {e.photoUrl && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <a href={e.photoUrl} target="_blank" rel="noreferrer" className="shrink-0">
-                      <img
-                        src={e.photoUrl}
-                        alt=""
-                        className="h-10 w-10 rounded-lg border border-brand-line object-cover"
-                      />
-                    </a>
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <div className="text-xs text-brand-muted">
-                      {fmtDate(e.date)}
+            <div className="grid grid-cols-3 gap-2">
+              {[...monthEntries]
+                .sort((a, b) => (a.date > b.date ? -1 : 1))
+                .map((e) => (
+                  <button
+                    key={e.id}
+                    type="button"
+                    onClick={() => openEditWork(e)}
+                    className="flex min-w-0 flex-col rounded-xl border border-brand-line bg-white px-2 py-1.5 text-left shadow-card active:bg-brand-light"
+                  >
+                    <DayHead date={e.date} t={t} photo={!!e.photoUrl} />
+                    <div className="text-[15px] font-extrabold leading-tight text-brand-dark">
+                      {hoursLabel(e.hours)}
                     </div>
-                    <div className="truncate text-[15px] font-semibold">
-                      {e.address || "—"} · {hoursLabel(e.hours)}
+                    <div className="truncate text-[11px] text-brand-muted">
+                      {e.address || "—"}
                     </div>
-                  </div>
-                  <div className="whitespace-nowrap text-[15px] font-extrabold text-brand-dark">
-                    {eur(e.hours * rate)}
-                  </div>
-                  <EditBtn onClick={() => openEditWork(e)} label={t.edit} />
-                  <DeleteBtn action={deleteWorkEntry} id={e.id} hidden={hidden} confirm={t.deleteConfirm} />
-                </div>
-              ))
+                    <div className="mt-0.5 truncate text-xs font-bold text-brand-txt">
+                      {eur(e.hours * rate)}
+                    </div>
+                  </button>
+                ))}
+            </div>
           )
-        ) : payments.length === 0 ? (
+        ) : monthPays.length === 0 ? (
           <Empty>{t.noPay}</Empty>
         ) : (
-          [...payments]
-            .sort((a, b) => (a.date > b.date ? -1 : 1))
-            .map((p) => (
-              <div key={p.id} className="flex items-center gap-2.5 rounded-xl border border-brand-line bg-white px-3 py-2.5">
-                <div className="min-w-0 flex-1">
-                  <div className="text-xs text-brand-muted">{t.payment}</div>
-                  <div className="text-[15px] font-semibold">
-                    {fmtDate(p.date)}
+          <div className="grid grid-cols-3 gap-2">
+            {[...monthPays]
+              .sort((a, b) => (a.date > b.date ? -1 : 1))
+              .map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => openEditPay(p)}
+                  className="flex min-w-0 flex-col rounded-xl border border-brand-line bg-white px-2 py-1.5 text-left shadow-card active:bg-brand-light"
+                >
+                  <DayHead date={p.date} t={t} />
+                  <div className="truncate text-[15px] font-extrabold leading-tight text-[#2e8b57]">
+                    +{eur(p.amount)}
                   </div>
-                </div>
-                <div className="whitespace-nowrap text-[15px] font-extrabold text-[#2e8b57]">
-                  + {eur(p.amount)}
-                </div>
-                <EditBtn onClick={() => openEditPay(p)} label={t.edit} />
-                <DeleteBtn action={deletePayment} id={p.id} hidden={hidden} confirm={t.deleteConfirm} />
-              </div>
-            ))
+                  <div className="truncate text-[11px] text-brand-muted">
+                    {t.payment}
+                  </div>
+                </button>
+              ))}
+          </div>
         )}
       </div>
+
+      {/* Month history — every month stays saved and can be reopened */}
+      {history.length > 1 && (
+        <div className="px-3 pt-5">
+          <div className="mb-2 px-1 text-xs font-bold uppercase tracking-wide text-brand-muted">
+            {t.monthHistory}
+          </div>
+          <div className="flex flex-col gap-1.5">
+            {history.map((h) => (
+              <button
+                key={h.month}
+                type="button"
+                onClick={() => {
+                  setMonth(h.month);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left ${
+                  h.month === month
+                    ? "border-brand-dark bg-brand-light"
+                    : "border-brand-line bg-white"
+                }`}
+              >
+                <span className="w-5 flex-none text-sm">
+                  {h.month === currentMonth ? "●" : "🔒"}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-[15px] font-semibold">
+                    {monthLabel(h.month, t.monthNames)}
+                  </div>
+                  <div className="text-xs text-brand-muted">
+                    {hoursLabel(h.hours)} · {h.days} {t.days.toLowerCase()} ·{" "}
+                    {t.paid.toLowerCase()} {Math.round(h.paid)}€
+                  </div>
+                </div>
+                <div className="whitespace-nowrap text-[15px] font-extrabold text-brand-dark">
+                  {eur(h.salary)}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* FAB */}
       <button
@@ -290,6 +422,7 @@ export default function Tracker({
             if (e.target === e.currentTarget) setModal(null);
           }}
         >
+          <div className="w-full animate-sheet-up rounded-t-[20px] bg-white px-4 pb-6 pt-4">
           <form
             action={
               modal === "work"
@@ -300,8 +433,14 @@ export default function Tracker({
                   ? updatePayment
                   : addPayment
             }
-            onSubmit={() => setModal(null)}
-            className="w-full animate-sheet-up rounded-t-[20px] bg-white px-4 pb-6 pt-4"
+            onSubmit={(ev) => {
+              // Jump to the month of the saved date so the new row is visible.
+              const d = new FormData(ev.currentTarget).get("date");
+              if (typeof d === "string" && /^\d{4}-\d{2}/.test(d)) {
+                setMonth(d.slice(0, 7));
+              }
+              setModal(null);
+            }}
           >
             {hidden}
             {editItem && (
@@ -317,7 +456,7 @@ export default function Tracker({
             {modal === "work" ? (
               <>
                 <Field label={t.date}>
-                  <input name="date" type="date" defaultValue={editWork?.date ?? today} className={inputCls} />
+                  <input name="date" type="date" defaultValue={editWork?.date ?? defaultDate} className={inputCls} />
                 </Field>
                 <Field label={t.hoursLabel}>
                   <input name="hours" type="text" inputMode="decimal" defaultValue={editWork ? String(editWork.hours) : "8"} placeholder={t.hoursPlaceholder} className={inputCls} />
@@ -364,7 +503,7 @@ export default function Tracker({
             ) : (
               <>
                 <Field label={t.paymentDate}>
-                  <input name="date" type="date" defaultValue={editPay?.date ?? today} className={inputCls} />
+                  <input name="date" type="date" defaultValue={editPay?.date ?? defaultDate} className={inputCls} />
                 </Field>
                 <Field label={t.paymentAmount}>
                   <input name="amount" type="text" inputMode="decimal" defaultValue={editPay ? String(editPay.amount) : ""} placeholder="500" className={inputCls} />
@@ -384,6 +523,26 @@ export default function Tracker({
               </button>
             </div>
           </form>
+          {editItem && (
+            <form
+              action={modal === "work" ? deleteWorkEntry : deletePayment}
+              onSubmit={(ev) => {
+                if (!window.confirm(t.deleteConfirm)) ev.preventDefault();
+                else setModal(null);
+              }}
+              className="mt-2.5"
+            >
+              {hidden}
+              <input type="hidden" name="id" value={(editItem as { id: string }).id} />
+              <button
+                type="submit"
+                className="w-full rounded-xl bg-[#fbe9e9] py-3 font-bold text-brand-danger"
+              >
+                🗑 {t.delete}
+              </button>
+            </form>
+          )}
+          </div>
         </div>
       )}
     </div>
@@ -452,47 +611,26 @@ function Field({
   );
 }
 
-function EditBtn({ onClick, label }: { onClick: () => void; label: string }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="h-8 w-8 flex-none rounded-lg bg-brand-light text-sm font-bold text-brand-dark"
-      aria-label={label}
-      title={label}
-    >
-      ✎
-    </button>
-  );
-}
-
-function DeleteBtn({
-  action,
-  id,
-  hidden,
-  confirm,
+function DayHead({
+  date,
+  t,
+  photo = false,
 }: {
-  action: (formData: FormData) => void;
-  id: string;
-  hidden: React.ReactNode;
-  confirm: string;
+  date: string;
+  t: Dict;
+  photo?: boolean;
 }) {
+  const [y, m, d] = date.split("-").map(Number);
+  const wd = t.weekdays[new Date(Date.UTC(y, m - 1, d)).getUTCDay()];
   return (
-    <form
-      action={action}
-      onSubmit={(e) => {
-        if (!window.confirm(confirm)) e.preventDefault();
-      }}
-    >
-      {hidden}
-      <input type="hidden" name="id" value={id} />
-      <button
-        type="submit"
-        className="h-8 w-8 flex-none rounded-lg bg-[#fbe9e9] text-base font-bold text-brand-danger"
-        aria-label="delete"
-      >
-        ×
-      </button>
-    </form>
+    <div className="flex items-baseline gap-1">
+      <span className="text-lg font-extrabold leading-none text-brand-dark">
+        {d}
+      </span>
+      <span className="truncate text-[10px] font-semibold uppercase text-brand-muted">
+        {wd}
+      </span>
+      {photo && <span className="ml-auto text-[11px]">📷</span>}
+    </div>
   );
 }
