@@ -346,17 +346,21 @@ export default function Tracker({
                     key={e.id}
                     type="button"
                     onClick={() => openEditWork(e)}
-                    className="flex min-w-0 flex-col rounded-xl border border-brand-line bg-white px-2 py-1.5 text-left shadow-card active:bg-brand-light"
+                    className="min-w-0 rounded-xl border border-brand-line bg-white px-2 py-1.5 text-left shadow-card active:bg-brand-light"
                   >
-                    <DayHead date={e.date} t={t} photo={!!e.photoUrl} />
-                    <div className="text-[15px] font-extrabold leading-tight text-brand-dark">
-                      {hoursLabel(e.hours)}
+                    <div className="flex items-center justify-between gap-1">
+                      <DayHead date={e.date} t={t} photo={!!e.photoUrl} />
+                      <span className="whitespace-nowrap text-sm font-extrabold text-brand-dark">
+                        {hoursLabel(e.hours)}
+                      </span>
                     </div>
-                    <div className="truncate text-[11px] text-brand-muted">
-                      {e.address || "—"}
-                    </div>
-                    <div className="mt-0.5 truncate text-xs font-bold text-brand-txt">
-                      {eur(e.hours * rate)}
+                    <div className="mt-0.5 flex items-baseline justify-between gap-1">
+                      <span className="min-w-0 truncate text-[10.5px] text-brand-muted">
+                        {e.address || "—"}
+                      </span>
+                      <span className="whitespace-nowrap text-[11px] font-bold text-brand-txt">
+                        {shortEur(e.hours * rate)}
+                      </span>
                     </div>
                   </button>
                 ))}
@@ -373,13 +377,15 @@ export default function Tracker({
                   key={p.id}
                   type="button"
                   onClick={() => openEditPay(p)}
-                  className="flex min-w-0 flex-col rounded-xl border border-brand-line bg-white px-2 py-1.5 text-left shadow-card active:bg-brand-light"
+                  className="min-w-0 rounded-xl border border-brand-line bg-white px-2 py-1.5 text-left shadow-card active:bg-brand-light"
                 >
-                  <DayHead date={p.date} t={t} />
-                  <div className="truncate text-[15px] font-extrabold leading-tight text-[#2e8b57]">
-                    +{eur(p.amount)}
+                  <div className="flex items-center justify-between gap-1">
+                    <DayHead date={p.date} t={t} />
+                    <span className="whitespace-nowrap text-sm font-extrabold text-[#2e8b57]">
+                      +{shortEur(p.amount)}
+                    </span>
                   </div>
-                  <div className="truncate text-[11px] text-brand-muted">
+                  <div className="mt-0.5 truncate text-[10.5px] text-brand-muted">
                     {t.payment}
                   </div>
                 </button>
@@ -713,14 +719,20 @@ function DayHead({
   const [y, m, d] = date.split("-").map(Number);
   const wd = t.weekdays[new Date(Date.UTC(y, m - 1, d)).getUTCDay()];
   return (
-    <div className="flex items-baseline gap-1">
-      <span className="text-lg font-extrabold leading-none text-brand-dark">
+    <span className="flex min-w-0 items-baseline gap-1">
+      <span className="text-base font-extrabold leading-none text-brand-dark">
         {d}
       </span>
       <span className="truncate text-[10px] font-semibold uppercase text-brand-muted">
         {wd}
       </span>
-      {photo && <span className="ml-auto text-[11px]">📷</span>}
-    </div>
+      {photo && <span className="text-[10px]">📷</span>}
+    </span>
   );
+}
+
+// Compact euro for small cards: 120 → "120€", 112.5 → "112.5€".
+function shortEur(n: number): string {
+  const r = Math.round(n * 100) / 100;
+  return (Number.isInteger(r) ? String(r) : r.toFixed(2).replace(/0$/, "")) + "€";
 }
