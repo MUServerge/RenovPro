@@ -111,6 +111,7 @@ export type Dict = {
   monthNames: string[];
   weekdays: string[]; // short, Sunday first
   delete: string;
+  repeatToday: string;
   pushTitle: string;
   pushDesc: string;
   pushEnable: string;
@@ -220,6 +221,7 @@ const uk: Dict = {
   monthNames: ["Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень"],
   weekdays: ["Нд", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
   delete: "Видалити",
+  repeatToday: "Сьогодні: як минулого дня",
   pushTitle: "Щоденне нагадування",
   pushDesc: "Сповіщення на телефон увечері (Пн–Сб), якщо ви не внесли сьогоднішню роботу.",
   pushEnable: "Увімкнути нагадування",
@@ -329,6 +331,7 @@ const en: Dict = {
   monthNames: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
   weekdays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
   delete: "Delete",
+  repeatToday: "Today: same as last day",
   pushTitle: "Daily reminder",
   pushDesc: "A phone notification in the evening (Mon–Sat) if you haven't logged today's work.",
   pushEnable: "Turn on reminders",
@@ -438,6 +441,7 @@ const fr: Dict = {
   monthNames: ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
   weekdays: ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"],
   delete: "Supprimer",
+  repeatToday: "Aujourd'hui : comme le dernier jour",
   pushTitle: "Rappel quotidien",
   pushDesc: "Une notification le soir (lun–sam) si vous n'avez pas saisi la journée.",
   pushEnable: "Activer les rappels",
@@ -547,6 +551,7 @@ const ka: Dict = {
   monthNames: ["იანვარი", "თებერვალი", "მარტი", "აპრილი", "მაისი", "ივნისი", "ივლისი", "აგვისტო", "სექტემბერი", "ოქტომბერი", "ნოემბერი", "დეკემბერი"],
   weekdays: ["კვ", "ორ", "სმ", "ოთ", "ხთ", "პრ", "შბ"],
   delete: "წაშლა",
+  repeatToday: "დღესაც იგივე, რაც ბოლო დღეს",
   pushTitle: "ყოველდღიური შეხსენება",
   pushDesc: "საღამოს (ორშ–შაბ) ტელეფონზე შეტყობინება მოვა, თუ დღევანდელი სამუშაო არ შეგივსია.",
   pushEnable: "შეხსენების ჩართვა",
