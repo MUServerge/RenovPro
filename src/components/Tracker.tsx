@@ -340,7 +340,7 @@ export default function Tracker({
           ) : (
             <div className="grid grid-cols-3 gap-2">
               {[...monthEntries]
-                .sort((a, b) => (a.date > b.date ? -1 : 1))
+                .sort((a, b) => (a.date < b.date ? -1 : 1))
                 .map((e) => (
                   <button
                     key={e.id}
@@ -367,7 +367,7 @@ export default function Tracker({
         ) : (
           <div className="grid grid-cols-3 gap-2">
             {[...monthPays]
-              .sort((a, b) => (a.date > b.date ? -1 : 1))
+              .sort((a, b) => (a.date < b.date ? -1 : 1))
               .map((p) => (
                 <button
                   key={p.id}
