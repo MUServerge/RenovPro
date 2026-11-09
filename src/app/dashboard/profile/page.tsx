@@ -37,7 +37,7 @@ export default async function ProfilePage() {
       </header>
 
       <div className="p-4">
-        {session.role === "worker" && (
+        {session.role === "worker" && process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && (
           <div className="mb-4">
             <PushToggle t={t} />
           </div>
