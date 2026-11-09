@@ -348,3 +348,54 @@ export async function deleteWorker(formData: FormData): Promise<void> {
   revalidatePath("/admin");
   redirect("/admin");
 }
+
+// ---- Push notifications (daily reminder) ----
+
+export async function savePushSubscription(sub: {
+  endpoint: string;
+  keys: { p256dh: string; auth: string };
+}): Promise<{ ok: boolean }> {
+  const session = await getSession();
+  if (!session) return { ok: false };
+  if (!sub?.endpoint || !sub.keys?.p256dh || !sub.keys?.auth) return { ok: false };
+  await prisma.pushSubscription.upsert({
+    where: { endpoint: sub.endpoint },
+    create: {
+      userId: session.id,
+      endpoint: sub.endpoint,
+      p256dh: sub.keys.p256dh,
+      auth: sub.keys.auth,
+    },
+    update: {
+      userId: session.id,
+      p256dh: sub.keys.p256dh,
+      auth: sub.keys.auth,
+    },
+  });
+  return { ok: true };
+}
+
+export async function removePushSubscription(
+  endpoint: string,
+): Promise<{ ok: boolean }> {
+  const session = await getSession();
+  if (!session) return { ok: false };
+  await prisma.pushSubscription.deleteMany({
+    where: { endpoint, userId: session.id },
+  });
+  return { ok: true };
+}
+
+export async function sendTestPush(): Promise<{ sent: number }> {
+  const session = await getSession();
+  if (!session) return { sent: 0 };
+  const { getDict } = await import("@/lib/i18n/dictionaries");
+  const { sendPushToUser } = await import("@/lib/push");
+  const t = getDict(session.locale);
+  const sent = await sendPushToUser(session.id, {
+    title: t.appName,
+    body: t.pushTestBody,
+    url: "/dashboard",
+  });
+  return { sent };
+}

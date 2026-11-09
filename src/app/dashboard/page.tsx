@@ -5,6 +5,7 @@ import { getDict } from "@/lib/i18n/dictionaries";
 import { toNum } from "@/lib/money";
 import Tracker from "@/components/Tracker";
 import TopBar from "@/components/TopBar";
+import PushToggle from "@/components/PushToggle";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +36,7 @@ export default async function DashboardPage() {
         title={t.appName}
         t={t}
       />
+      <PushToggle t={t} variant="banner" />
       <Tracker
         t={t}
         rate={toNum(user.hourlyRate)}
