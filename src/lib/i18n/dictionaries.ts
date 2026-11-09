@@ -109,6 +109,8 @@ export type Dict = {
   deleteWorker: string;
   deleteWorkerConfirm: string;
   monthNames: string[];
+  weekdays: string[]; // short, Sunday first
+  delete: string;
   monthSalary: string;
   totalBalanceHint: string;
   monthHistory: string;
@@ -204,6 +206,8 @@ const uk: Dict = {
   deleteWorker: "Видалити працівника",
   deleteWorkerConfirm: "Видалити цього працівника та всі його дані?",
   monthNames: ["Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень"],
+  weekdays: ["Нд", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
+  delete: "Видалити",
   monthSalary: "Зарплата за місяць",
   totalBalanceHint: "за весь час",
   monthHistory: "Історія місяців",
@@ -299,6 +303,8 @@ const en: Dict = {
   deleteWorker: "Delete worker",
   deleteWorkerConfirm: "Delete this worker and all their data?",
   monthNames: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+  weekdays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+  delete: "Delete",
   monthSalary: "Month salary",
   totalBalanceHint: "all time",
   monthHistory: "Month history",
@@ -394,6 +400,8 @@ const fr: Dict = {
   deleteWorker: "Supprimer l'ouvrier",
   deleteWorkerConfirm: "Supprimer cet ouvrier et toutes ses données ?",
   monthNames: ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
+  weekdays: ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"],
+  delete: "Supprimer",
   monthSalary: "Salaire du mois",
   totalBalanceHint: "depuis le début",
   monthHistory: "Historique des mois",
@@ -489,6 +497,8 @@ const ka: Dict = {
   deleteWorker: "თანამშრომლის წაშლა",
   deleteWorkerConfirm: "წავშალო ეს თანამშრომელი და მისი ყველა მონაცემი?",
   monthNames: ["იანვარი", "თებერვალი", "მარტი", "აპრილი", "მაისი", "ივნისი", "ივლისი", "აგვისტო", "სექტემბერი", "ოქტომბერი", "ნოემბერი", "დეკემბერი"],
+  weekdays: ["კვ", "ორ", "სმ", "ოთ", "ხთ", "პრ", "შბ"],
+  delete: "წაშლა",
   monthSalary: "თვის ხელფასი",
   totalBalanceHint: "სულ, ყველა თვე",
   monthHistory: "თვეების ისტორია",

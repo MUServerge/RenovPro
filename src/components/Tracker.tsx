@@ -291,62 +291,59 @@ export default function Tracker({
         </TabButton>
       </div>
 
-      {/* List */}
-      <div className="flex flex-col gap-2 px-3">
+      {/* List — compact 3-column grid; tap a card to edit or delete it */}
+      <div className="px-3">
         {tab === "work" ? (
           monthEntries.length === 0 ? (
             <Empty>{t.noWork}</Empty>
           ) : (
-            [...monthEntries]
-              .sort((a, b) => (a.date > b.date ? -1 : 1))
-              .map((e) => (
-                <div key={e.id} className="flex items-center gap-2.5 rounded-xl border border-brand-line bg-white px-3 py-2.5">
-                  {e.photoUrl && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <a href={e.photoUrl} target="_blank" rel="noreferrer" className="shrink-0">
-                      <img
-                        src={e.photoUrl}
-                        alt=""
-                        className="h-10 w-10 rounded-lg border border-brand-line object-cover"
-                      />
-                    </a>
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <div className="text-xs text-brand-muted">
-                      {fmtDate(e.date)}
+            <div className="grid grid-cols-3 gap-2">
+              {[...monthEntries]
+                .sort((a, b) => (a.date > b.date ? -1 : 1))
+                .map((e) => (
+                  <button
+                    key={e.id}
+                    type="button"
+                    onClick={() => openEditWork(e)}
+                    className="flex min-w-0 flex-col rounded-xl border border-brand-line bg-white px-2 py-1.5 text-left shadow-card active:bg-brand-light"
+                  >
+                    <DayHead date={e.date} t={t} photo={!!e.photoUrl} />
+                    <div className="text-[15px] font-extrabold leading-tight text-brand-dark">
+                      {hoursLabel(e.hours)}
                     </div>
-                    <div className="truncate text-[15px] font-semibold">
-                      {e.address || "—"} · {hoursLabel(e.hours)}
+                    <div className="truncate text-[11px] text-brand-muted">
+                      {e.address || "—"}
                     </div>
-                  </div>
-                  <div className="whitespace-nowrap text-[15px] font-extrabold text-brand-dark">
-                    {eur(e.hours * rate)}
-                  </div>
-                  <EditBtn onClick={() => openEditWork(e)} label={t.edit} />
-                  <DeleteBtn action={deleteWorkEntry} id={e.id} hidden={hidden} confirm={t.deleteConfirm} />
-                </div>
-              ))
+                    <div className="mt-0.5 truncate text-xs font-bold text-brand-txt">
+                      {eur(e.hours * rate)}
+                    </div>
+                  </button>
+                ))}
+            </div>
           )
         ) : monthPays.length === 0 ? (
           <Empty>{t.noPay}</Empty>
         ) : (
-          [...monthPays]
-            .sort((a, b) => (a.date > b.date ? -1 : 1))
-            .map((p) => (
-              <div key={p.id} className="flex items-center gap-2.5 rounded-xl border border-brand-line bg-white px-3 py-2.5">
-                <div className="min-w-0 flex-1">
-                  <div className="text-xs text-brand-muted">{t.payment}</div>
-                  <div className="text-[15px] font-semibold">
-                    {fmtDate(p.date)}
+          <div className="grid grid-cols-3 gap-2">
+            {[...monthPays]
+              .sort((a, b) => (a.date > b.date ? -1 : 1))
+              .map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => openEditPay(p)}
+                  className="flex min-w-0 flex-col rounded-xl border border-brand-line bg-white px-2 py-1.5 text-left shadow-card active:bg-brand-light"
+                >
+                  <DayHead date={p.date} t={t} />
+                  <div className="truncate text-[15px] font-extrabold leading-tight text-[#2e8b57]">
+                    +{eur(p.amount)}
                   </div>
-                </div>
-                <div className="whitespace-nowrap text-[15px] font-extrabold text-[#2e8b57]">
-                  + {eur(p.amount)}
-                </div>
-                <EditBtn onClick={() => openEditPay(p)} label={t.edit} />
-                <DeleteBtn action={deletePayment} id={p.id} hidden={hidden} confirm={t.deleteConfirm} />
-              </div>
-            ))
+                  <div className="truncate text-[11px] text-brand-muted">
+                    {t.payment}
+                  </div>
+                </button>
+              ))}
+          </div>
         )}
       </div>
 
@@ -425,6 +422,7 @@ export default function Tracker({
             if (e.target === e.currentTarget) setModal(null);
           }}
         >
+          <div className="w-full animate-sheet-up rounded-t-[20px] bg-white px-4 pb-6 pt-4">
           <form
             action={
               modal === "work"
@@ -443,7 +441,6 @@ export default function Tracker({
               }
               setModal(null);
             }}
-            className="w-full animate-sheet-up rounded-t-[20px] bg-white px-4 pb-6 pt-4"
           >
             {hidden}
             {editItem && (
@@ -526,6 +523,26 @@ export default function Tracker({
               </button>
             </div>
           </form>
+          {editItem && (
+            <form
+              action={modal === "work" ? deleteWorkEntry : deletePayment}
+              onSubmit={(ev) => {
+                if (!window.confirm(t.deleteConfirm)) ev.preventDefault();
+                else setModal(null);
+              }}
+              className="mt-2.5"
+            >
+              {hidden}
+              <input type="hidden" name="id" value={(editItem as { id: string }).id} />
+              <button
+                type="submit"
+                className="w-full rounded-xl bg-[#fbe9e9] py-3 font-bold text-brand-danger"
+              >
+                🗑 {t.delete}
+              </button>
+            </form>
+          )}
+          </div>
         </div>
       )}
     </div>
@@ -594,47 +611,26 @@ function Field({
   );
 }
 
-function EditBtn({ onClick, label }: { onClick: () => void; label: string }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="h-8 w-8 flex-none rounded-lg bg-brand-light text-sm font-bold text-brand-dark"
-      aria-label={label}
-      title={label}
-    >
-      ✎
-    </button>
-  );
-}
-
-function DeleteBtn({
-  action,
-  id,
-  hidden,
-  confirm,
+function DayHead({
+  date,
+  t,
+  photo = false,
 }: {
-  action: (formData: FormData) => void;
-  id: string;
-  hidden: React.ReactNode;
-  confirm: string;
+  date: string;
+  t: Dict;
+  photo?: boolean;
 }) {
+  const [y, m, d] = date.split("-").map(Number);
+  const wd = t.weekdays[new Date(Date.UTC(y, m - 1, d)).getUTCDay()];
   return (
-    <form
-      action={action}
-      onSubmit={(e) => {
-        if (!window.confirm(confirm)) e.preventDefault();
-      }}
-    >
-      {hidden}
-      <input type="hidden" name="id" value={id} />
-      <button
-        type="submit"
-        className="h-8 w-8 flex-none rounded-lg bg-[#fbe9e9] text-base font-bold text-brand-danger"
-        aria-label="delete"
-      >
-        ×
-      </button>
-    </form>
+    <div className="flex items-baseline gap-1">
+      <span className="text-lg font-extrabold leading-none text-brand-dark">
+        {d}
+      </span>
+      <span className="truncate text-[10px] font-semibold uppercase text-brand-muted">
+        {wd}
+      </span>
+      {photo && <span className="ml-auto text-[11px]">📷</span>}
+    </div>
   );
 }
